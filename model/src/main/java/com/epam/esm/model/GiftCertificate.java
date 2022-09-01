@@ -1,7 +1,6 @@
 package com.epam.esm.model;
 
-import org.springframework.stereotype.Component;
-
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -10,15 +9,31 @@ import java.util.Objects;
 /**
  * GiftCertificate entity with methods defined in Object class.
  */
-@Component
+@Entity
+@Table(name = "gift_certificate")
 public class GiftCertificate {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private int id;
+
+    @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "description", nullable = false)
     private String description;
+
+    @Column(name = "price", nullable = false)
     private BigDecimal price;
+
+    @Column(name = "duration", nullable = false)
     private Duration duration;
+
+    @Column(name = "create_date", nullable = false)
     private LocalDateTime createDate;
+
+    @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
 
     public GiftCertificate() {

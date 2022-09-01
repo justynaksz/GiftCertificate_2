@@ -1,17 +1,24 @@
 package com.epam.esm.model;
 
-import org.springframework.stereotype.Component;
-
+import javax.persistence.*;
 import java.util.Objects;
 
 /**
  * GiftCertificateTag entity with methods defined in Object class.
  */
-@Component
+@Entity
+@Table(name = "gift_certificate_tag")
 public class GiftCertificateTag {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private int id;
+
+    @Column(name = "gift_certificate_id", nullable = false)
     private int giftCertificateId;
+
+    @Column(name = "tag_id", nullable = false)
     private int tagId;
 
     public int getId() {
