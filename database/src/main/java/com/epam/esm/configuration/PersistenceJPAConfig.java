@@ -1,5 +1,6 @@
 package com.epam.esm.configuration;
 
+import com.epam.esm.passwordutil.PasswordUtil;
 import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +18,13 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 
 /**
@@ -43,11 +49,12 @@ public class PersistenceJPAConfig {
      */
     @Bean
     @Profile("prod")
-    public DataSource prodDataSource() {
+    public DataSource prodDataSource() throws NoSuchPaddingException, IllegalBlockSizeException,
+            NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
         var dataSource = new DriverManagerDataSource();
         dataSource.setUrl(Preconditions.checkNotNull(environment.getProperty("prod.datasource.url")));
         dataSource.setUsername(Preconditions.checkNotNull(environment.getProperty("prod.datasource.username")));
-        dataSource.setPassword(Preconditions.checkNotNull(environment.getProperty("prod.datasource.password")));
+        dataSource.setPassword(PasswordUtil.decrypt(Preconditions.checkNotNull(environment.getProperty("prod.datasource.password"))));
         dataSource.setDriverClassName(Preconditions.checkNotNull(environment.getProperty("prod.datasource.driverClassName")));
         return dataSource;
     }
@@ -71,11 +78,12 @@ public class PersistenceJPAConfig {
      */
     @Bean
     @Profile("dev")
-    public DataSource devDataSource() {
+    public DataSource devDataSource() throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException,
+            BadPaddingException, InvalidKeyException {
         var dataSource = new DriverManagerDataSource();
         dataSource.setUrl(Preconditions.checkNotNull(environment.getProperty("dev.datasource.url")));
         dataSource.setUsername(Preconditions.checkNotNull(environment.getProperty("dev.datasource.username")));
-        dataSource.setPassword(Preconditions.checkNotNull(environment.getProperty("dev.datasource.password")));
+        dataSource.setPassword(PasswordUtil.decrypt(Preconditions.checkNotNull(environment.getProperty("dev.datasource.password"))));
         dataSource.setDriverClassName(Preconditions.checkNotNull(environment.getProperty("dev.datasource.driverClassName")));
         return dataSource;
     }
