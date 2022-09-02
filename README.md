@@ -91,24 +91,19 @@ GiftCertificate uses following technologies:
 
 Using GiftCertificate requires:
 1. Intellij IDEA v.2022.1
-3. PostgreSQL
+2. PostgreSQL
+3. Postman / SOAP
 
 ## 4. Build and run application
 ***
 
-### 4.1. Build project
-+ from terminal:
-  `mvn clean install`
-+ from Intellij IDEA:
-  `Ctrl + F9`
-
-### 4.2. Run tests
+### 4.1. Run tests
 + from terminal:
   `mvn verify`
 + from IntelliJ IDEA:
   `Ctrl + Shift + F10`
 
-### 4.3. Run application
+### 4.2. Run application
 + from terminal:
   `mvn spring-boot:run`
 + from Intellij IDEA:

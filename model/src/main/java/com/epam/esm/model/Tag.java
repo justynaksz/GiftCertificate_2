@@ -2,9 +2,10 @@ package com.epam.esm.model;
 
 import javax.persistence.*;
 import java.util.Objects;
+import java.util.Set;
 
 /**
- * Tag entity with methods defined in Object class.
+ * Tag entity.
  */
 @Entity
 @Table(name = "tag")
@@ -17,6 +18,9 @@ public class Tag {
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
+
+    @ManyToMany(mappedBy = "tags")
+    Set<GiftCertificate> giftCertificates;
 
     public Tag(int id, String name) {
         this.id = id;

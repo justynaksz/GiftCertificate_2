@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 /**
- * GiftCertificateTag entity with methods defined in Object class.
+ * GiftCertificateTag entity.
  */
 @Entity
 @Table(name = "gift_certificate_tag")

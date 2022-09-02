@@ -5,9 +5,10 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Set;
 
 /**
- * GiftCertificate entity with methods defined in Object class.
+ * GiftCertificate entity.
  */
 @Entity
 @Table(name = "gift_certificate")
@@ -35,6 +36,13 @@ public class GiftCertificate {
 
     @Column(name = "last_update_date")
     private LocalDateTime lastUpdateDate;
+
+    @ManyToMany
+    @JoinTable(
+            name = "gift_certificate_tag",
+            joinColumns = @JoinColumn(name = "gift_certificate_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    Set<Tag> tags;
 
     public GiftCertificate() {
     }
