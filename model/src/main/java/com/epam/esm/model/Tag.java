@@ -1,17 +1,26 @@
 package com.epam.esm.model;
 
-import org.springframework.stereotype.Component;
-
+import javax.persistence.*;
 import java.util.Objects;
+import java.util.Set;
 
 /**
- * Tag entity with methods defined in Object class.
+ * Tag entity.
  */
-@Component
+@Entity
+@Table(name = "tag")
 public class Tag {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private int id;
+
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
+
+    @ManyToMany(mappedBy = "tags")
+    Set<GiftCertificate> giftCertificates;
 
     public Tag(int id, String name) {
         this.id = id;
