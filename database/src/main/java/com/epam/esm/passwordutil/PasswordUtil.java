@@ -18,6 +18,9 @@ public class PasswordUtil {
     private static final String ENCRYPTOR_KEY = "top secret key:)";
     private static final String TRANSFORMATION = "AES";
 
+    private PasswordUtil() {
+    }
+
     /**
      * Database's password encryptor.
      *
