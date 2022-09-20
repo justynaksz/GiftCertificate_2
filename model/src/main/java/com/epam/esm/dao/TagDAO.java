@@ -1,55 +1,33 @@
 package com.epam.esm.dao;
 
+import com.epam.esm.exception.NotFoundException;
 import com.epam.esm.model.Tag;
-import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.List;
 
 /**
  * CRD operations for {@code Tag} entity.
  */
-public interface TagDAO {
+public interface TagDAO extends GenericDAO<Tag, Integer> {
 
     /**
-     * Finds {@code tag} of given id value.
-     * @param  id                               int id value
-     * @return tag                              tag of given id value
-     * @throws EmptyResultDataAccessException   in case of tag not found
+     * Finds {@code tag} of given parameter(s) value.
+     *
+     * @param page index of page
+     * @param size max size of given page
+     * @param id   requested int id value (optional)
+     * @param name requested String tag's name (optional)
+     * @return tags          list of tags of given id or/and name
+     * @throws NotFoundException in case there's no tag in database that fits criteria
      */
-    Tag findById(int id) throws EmptyResultDataAccessException;
+    List<Tag> getTagsByParam(int page, int size, Integer id, String name) throws NotFoundException;
 
     /**
-     * Finds all {@code tag} of given name.
-     * @param  name                               String name value
-     * @return tag                                of given name
-     * @throws EmptyResultDataAccessException   in case of tag not found
+     * Finds {@code tag} of given name.
+     *
+     * @param name requested String tag's name
+     * @return tag of given name
+     * @throws NotFoundException in case there's no tag of given name in database
      */
-    Tag findByName(String name) throws EmptyResultDataAccessException;
-
-    /**
-     * Finds all {@code tag} of given gift certificate id.
-     * @param  giftCertificateId                 id of requested gift certificate
-     * @return tags                              list of all tags associated with given gift certificate
-     */
-    List<Tag> findTagsByGiftCertificateId(int giftCertificateId);
-
-    /**
-     * Finds all {@code tag}.
-     * @return tags    list of all tags
-     */
-    List<Tag> findAll();
-
-    /**
-     * Creates new {@code tag} entity.
-     * @param  tag    Tag instance to be inserted into database
-     * @return tag    Tag instance with specified id value that has been inserted into database
-     */
-    Tag createTag(Tag tag);
-
-    /**
-     * Deletes {@code tag} of given id value.
-     * @param id     int id value of tag instance to be removed
-     * @throws EmptyResultDataAccessException   in case of tag not found
-     */
-    void deleteTag(int id) throws EmptyResultDataAccessException;
+    Tag getByName(String name) throws NotFoundException;
 }

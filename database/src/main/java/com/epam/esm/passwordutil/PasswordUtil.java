@@ -31,8 +31,8 @@ public class PasswordUtil {
             NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException {
 
         byte[] bytes = ENCRYPTOR_KEY.getBytes(StandardCharsets.UTF_8);
-        SecretKeySpec secretKeySpec = new SecretKeySpec(bytes, TRANSFORMATION);
-        Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+        var secretKeySpec = new SecretKeySpec(bytes, TRANSFORMATION);
+        var cipher = Cipher.getInstance(TRANSFORMATION);
         cipher.init(1, secretKeySpec);
         byte[] encrypted = cipher.doFinal(password.getBytes(StandardCharsets.UTF_8));
 
@@ -49,8 +49,8 @@ public class PasswordUtil {
             NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException {
 
         byte[] bytes = ENCRYPTOR_KEY.getBytes(StandardCharsets.UTF_8);
-        SecretKeySpec secretKeySpec = new SecretKeySpec(bytes, TRANSFORMATION);
-        Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+        var secretKeySpec = new SecretKeySpec(bytes, TRANSFORMATION);
+        var cipher = Cipher.getInstance(TRANSFORMATION);
         cipher.init(2, secretKeySpec);
         byte[] decryptedValue = Base64.getDecoder().decode(password);
         byte[] decrypted = cipher.doFinal(decryptedValue);

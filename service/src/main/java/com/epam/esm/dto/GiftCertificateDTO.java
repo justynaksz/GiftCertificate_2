@@ -1,31 +1,28 @@
 package com.epam.esm.dto;
 
-import com.epam.esm.model.Tag;
-import org.springframework.stereotype.Component;
+import org.springframework.hateoas.RepresentationModel;
 
-import java.time.Duration;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * DTO class fo GiftCertificate.
  */
-@Component
-public class GiftCertificateDTO {
+public class GiftCertificateDTO extends RepresentationModel<GiftCertificateDTO> implements DTO {
 
-    private int id;
-    private String name;
-    private String description;
-    private double price;
-    private Duration duration;
-    private String createDate;
-    private String lastUpdateDate;
-    private List<Tag> tags;
+    private final Integer id;
+    private final String name;
+    private final String description;
+    private final BigDecimal price;
+    private final Integer duration;
+    private final String createDate;
+    private final String lastUpdateDate;
+    private final Set<TagDTO> tags;
 
-    public GiftCertificateDTO() {
-    }
 
-    public GiftCertificateDTO(int id, String name, String description, double price,
-                              Duration duration, String createDate, String lastUpdateDate, List<Tag> tags) {
+    public GiftCertificateDTO(Integer id, String name, String description, BigDecimal price,
+                              Integer duration, String createDate, String lastUpdateDate, Set<TagDTO> tags) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -36,7 +33,7 @@ public class GiftCertificateDTO {
         this.tags = tags;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -48,12 +45,12 @@ public class GiftCertificateDTO {
         return description;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public long getDuration() {
-        return duration.toDays();
+    public Integer getDuration() {
+        return duration;
     }
 
     public String getCreateDate() {
@@ -64,39 +61,23 @@ public class GiftCertificateDTO {
         return lastUpdateDate;
     }
 
-    public List<Tag> getTags() {
+    public Set<TagDTO> getTags() {
         return tags;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        var that = (GiftCertificateDTO) o;
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name)
+                && Objects.equals(description, that.description) && Objects.equals(price, that.price)
+                && Objects.equals(duration, that.duration) && Objects.equals(createDate, that.createDate)
+                && Objects.equals(lastUpdateDate, that.lastUpdateDate) && Objects.equals(tags, that.tags);
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public void setDuration(long duration) {
-        this.duration = Duration.ofDays(duration);
-    }
-
-    public void setCreateDate(String createDate) {
-        this.createDate = createDate;
-    }
-
-    public void setLastUpdateDate(String lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
-    }
-
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description, price, duration, createDate, lastUpdateDate, tags);
     }
 }

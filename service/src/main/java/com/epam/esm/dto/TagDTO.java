@@ -1,17 +1,25 @@
 package com.epam.esm.dto;
 
-import org.springframework.stereotype.Component;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
+
+import java.util.Objects;
 
 /**
  * DTO class fo Tag.
  */
-@Component
-public class TagDTO {
+@Relation(itemRelation = "tag", collectionRelation = "tags")
+public class TagDTO extends RepresentationModel<TagDTO> implements DTO {
 
-    private int id;
-    private String name;
+    private final Integer id;
+    private final String name;
 
-    public int getId() {
+    public TagDTO(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public Integer getId() {
         return id;
     }
 
@@ -19,11 +27,16 @@ public class TagDTO {
         return name;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        var tagDTO = (TagDTO) o;
+        return Objects.equals(id, tagDTO.id) && Objects.equals(name, tagDTO.name);
     }
 
-    public void setName(String name) {
-        this.name = name;
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name);
     }
 }

@@ -1,6 +1,7 @@
 package com.epam.esm.model;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 
@@ -9,20 +10,20 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "tag")
-public class Tag {
+public class Tag implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @ManyToMany(mappedBy = "tags")
-    Set<GiftCertificate> giftCertificates;
+    @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
+    private Set<GiftCertificate> giftCertificates;
 
-    public Tag(int id, String name) {
+    public Tag(Integer id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -30,11 +31,11 @@ public class Tag {
     public Tag() {
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -46,12 +47,20 @@ public class Tag {
         this.name = name;
     }
 
+    public Set<GiftCertificate> getGiftCertificates() {
+        return giftCertificates;
+    }
+
+    public void setGiftCertificates(Set<GiftCertificate> giftCertificates) {
+        this.giftCertificates = giftCertificates;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Tag tag = (Tag) o;
-        return id == tag.id && name.equals(tag.name);
+        return Objects.equals(id, tag.id) && name.equals(tag.name);
     }
 
     @Override
