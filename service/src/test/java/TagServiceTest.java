@@ -1,5 +1,6 @@
 import com.epam.esm.dao.impl.TagDAOImpl;
 import com.epam.esm.dto.TagDTO;
+import com.epam.esm.exception.NotFoundException;
 import com.epam.esm.exceptions.AlreadyExistException;
 import com.epam.esm.exceptions.InvalidInputException;
 import com.epam.esm.mapper.TagMapper;
@@ -39,12 +40,12 @@ class TagServiceTest {
 
         @Test
         @DisplayName("tag is correctly found")
-        void findByIdShouldReturnCorrectTag() {
+        void findByIdShouldReturnCorrectTag() throws NotFoundException, InvalidInputException {
             // GIVEN
-            int id = 2;
-            String name = "fun";
-            Tag funTag = setUpTag(id, name);
-            TagDTO funDTO = setUpTagDTO(id, name);
+            var id = 2;
+            var name = "fun";
+            var funTag = new Tag (id, name);
+            var funDTO = new TagDTO (id, name);
             // WHEN
             when(tagDAO.findById(id)).thenReturn(funTag);
             when(tagMapper.toDTO(funTag)).thenReturn(funDTO);
@@ -54,9 +55,9 @@ class TagServiceTest {
 
         @Test
         @DisplayName("tag of given id doesn't exist")
-        void findByIdShouldThrowExceptionIfTagDoesNotExist() {
+        void findByIdShouldThrowExceptionIfTagDoesNotExist() throws NotFoundException {
             // GIVEN
-            int id = 1;
+            var id = 1;
             // WHEN
             when(tagDAO.findById(id)).thenThrow(EmptyResultDataAccessException.class);
             // THEN
@@ -67,7 +68,7 @@ class TagServiceTest {
         @DisplayName("given id is invalid")
         void findByIdShouldThrowExceptionIfIdIsNegative() {
             // GIVEN
-            int id = -2;
+            var id = -2;
             // WHEN
 
             // THEN
@@ -75,44 +76,60 @@ class TagServiceTest {
         }
     }
 
-    @Test
-    @DisplayName("find all test")
-    void findAllShouldReturnAllTagsFromDb() {
-        // GIVEN
-        int funId = 1;
-        int photoId = 2;
-        int kidsId = 3;
+    @Nested
+    @DisplayName("find all tests")
+    class findAllTest {
+        @Test
+        @DisplayName("find all test")
+        void findAllShouldReturnAllTagsFromDb() throws NotFoundException {
+            // GIVEN
+            var funId = 1;
+            var photoId = 2;
+            var kidsId = 3;
 
-        String fun = "fun";
-        String photo = "photo";
-        String kids = "kids";
+            var fun = "fun";
+            var photo = "photo";
+            var kids = "kids";
 
-        Tag funTag = setUpTag(funId, fun);
-        Tag photoTag = setUpTag(photoId, photo);
-        Tag kidsTag = setUpTag(kidsId, kids);
+            var funTag = new Tag (funId, fun);
+            var photoTag = new Tag (photoId, photo);
+            var kidsTag = new Tag (kidsId, kids);
 
-        List<Tag> tags = new ArrayList<>();
-        tags.add(funTag);
-        tags.add(photoTag);
-        tags.add(kidsTag);
+            List<Tag> tags = new ArrayList<>();
+            tags.add(funTag);
+            tags.add(photoTag);
+            tags.add(kidsTag);
 
-        TagDTO funDTO = setUpTagDTO(funId, fun);
-        TagDTO photoDTO = setUpTagDTO(photoId, photo);
-        TagDTO kidsDTO = setUpTagDTO(kidsId, kids);
+            var funDTO = new TagDTO (funId, fun);
+            var photoDTO = new TagDTO (photoId, photo);
+            var kidsDTO = new TagDTO (kidsId, kids);
 
-        List<TagDTO> tagsDTO = new ArrayList<>();
-        tagsDTO.add(funDTO);
-        tagsDTO.add(photoDTO);
-        tagsDTO.add(kidsDTO);
+            List<TagDTO> tagsDTO = new ArrayList<>();
+            tagsDTO.add(funDTO);
+            tagsDTO.add(photoDTO);
+            tagsDTO.add(kidsDTO);
 
-        // WHEN
-        when(tagDAO.findAll()).thenReturn(tags);
-        when(tagMapper.toDTO(kidsTag)).thenReturn(kidsDTO);
-        when(tagMapper.toDTO(photoTag)).thenReturn(photoDTO);
-        when(tagMapper.toDTO(funTag)).thenReturn(funDTO);
-        // THEN
-        assertEquals(tagsDTO, tagService.getAll());
+            // WHEN
+            when(tagDAO.findAll()).thenReturn(tags);
+            when(tagMapper.toDTO(kidsTag)).thenReturn(kidsDTO);
+            when(tagMapper.toDTO(photoTag)).thenReturn(photoDTO);
+            when(tagMapper.toDTO(funTag)).thenReturn(funDTO);
+            // THEN
+            assertEquals(tagsDTO, tagService.getAll(1,10));
+        }
+
+        @Test
+        @DisplayName("find all when no record in db")
+        void findAllWhenNoRecordsInDatabase() throws NotFoundException {
+            // GIVEN
+
+            // WHEN
+            when(tagDAO.findAll()).thenThrow(NotFoundException.class);
+            // THEN
+            assertThrows(NotFoundException.class, () -> tagService.getAll(1,10));
+        }
     }
+
 
     @Nested
     @DisplayName("find by name tests")
@@ -120,29 +137,127 @@ class TagServiceTest {
 
         @Test
         @DisplayName("tag is correctly found")
-        void findByNameShouldReturnCorrectTag() {
+        void findByNameShouldReturnCorrectTag() throws NotFoundException, InvalidInputException {
             // GIVEN
-            String fun = "fun";
-            int id = 1;
-            Tag funTag = setUpTag(id, fun);
-            TagDTO funDTO = setUpTagDTO(id, fun);
+            var fun = "fun";
+            var outdoorFun = "outdoor fun";
+            var id = 1;
+            var funTag = new Tag(id, fun);
+            var funDTO = new TagDTO(id, fun);
+            List<TagDTO> tagsDTO = new ArrayList<>();
+            tagsDTO.add(funDTO);
             // WHEN
-            when(tagDAO.findByName(fun)).thenReturn(funTag);
+            when(tagDAO.getByName(fun)).thenReturn(funTag);
             when(tagMapper.toDTO(funTag)).thenReturn(funDTO);
             // THEN
             assertEquals(funDTO, tagService.getByName(fun));
         }
 
         @Test
-        @DisplayName("tag of given name doesn't exist")
-        void findByNameShouldThrowExceptionIfTagDoesNotExist() {
+        @DisplayName("find tag with empty name")
+        void findByNameShouldThrowExceptionIfNameIsEmpty() {
             // GIVEN
-            String name = "fun";
+            var name = "  ";
             // WHEN
-            when(tagDAO.findByName(name)).thenThrow(EmptyResultDataAccessException.class);
+
+            // THEN
+            assertThrows(InvalidInputException.class, () -> tagService.getByName(name));
+        }
+
+        @Test
+        @DisplayName("find tag with null name")
+        void findByNameShouldThrowExceptionIfNameIsNull() {
+            // GIVEN
+            String name = null;
+            // WHEN
+
+            // THEN
+            assertThrows(InvalidInputException.class, () -> tagService.getByName(name));
+        }
+
+        @Test
+        @DisplayName("tag of given name doesn't exist")
+        void findByNameShouldThrowExceptionIfTagDoesNotExist() throws NotFoundException {
+            // GIVEN
+            var name = "fun";
+            // WHEN
+            when(tagDAO.getByName(name)).thenThrow(EmptyResultDataAccessException.class);
             // THEN
             assertThrows(EmptyResultDataAccessException.class, () -> tagService.getByName(name));
         }
+    }
+
+    @Nested
+    @DisplayName("find by params tests")
+    class findByParamsTests {
+        @Test
+        @DisplayName("tags correctly found by name")
+        void getByParamCorrectlyFoundByName() throws NotFoundException, InvalidInputException {
+            // GIVEN
+            var funTag = new Tag (25, "funDay");
+            var outdoorFun = new Tag (578, "outdoor fun");
+            var funTagDTO = new TagDTO (25, "funDay");
+            var outdoorFunDTO = new TagDTO (578, "outdoor fun");
+            List<Tag> tags = new ArrayList<>();
+            List<TagDTO> tagsDTO = new ArrayList<>();
+            tags.add(funTag);
+            tags.add(outdoorFun);
+            tagsDTO.add(funTagDTO);
+            tagsDTO.add(outdoorFunDTO);
+            // WHEN
+            when(tagDAO.getTagsByParam(1,10,null, "fun")).thenReturn(tags);
+            when(tagMapper.toDTO(funTag)).thenReturn(funTagDTO);
+            when(tagMapper.toDTO(outdoorFun)).thenReturn(outdoorFunDTO);
+            // THEN
+            assertEquals(tagsDTO, tagService.getTagsByParam(1,10,null, "fun"));
+        }
+
+        @Test
+        @DisplayName("invalid name")
+        void getByParamWithInvalidName() throws NotFoundException, InvalidInputException {
+            // GIVEN
+
+            // WHEN
+
+            // THEN
+            assertThrows(InvalidInputException.class, () -> tagService.getTagsByParam(1,10,null, "  "));
+        }
+
+        @Test
+        @DisplayName("invalid id")
+        void getByParamWithInvalidId() throws NotFoundException, InvalidInputException {
+            // GIVEN
+
+            // WHEN
+
+            // THEN
+            assertThrows(InvalidInputException.class, () -> tagService.getTagsByParam(1,10,-30, "test"));
+        }
+
+        @Test
+        @DisplayName("no params return all tags")
+        void getByParamWithoutParamsShouldReturnAllTags() throws NotFoundException, InvalidInputException {
+            // GIVEN
+            var funTag = new Tag (25, "funDay");
+            var outdoorFun = new Tag (578, "outdoor");
+            var funTagDTO = new TagDTO (25, "funDay");
+            var outdoorFunDTO = new TagDTO (578, "outdoor");
+            List<Tag> tags = new ArrayList<>();
+            List<TagDTO> tagsDTO = new ArrayList<>();
+            tags.add(funTag);
+            tags.add(outdoorFun);
+            tagsDTO.add(funTagDTO);
+            tagsDTO.add(outdoorFunDTO);
+            // WHEN
+            when(tagDAO.getTagsByParam(1,10,null, null)).thenReturn(tags);
+            when(tagMapper.toDTO(funTag)).thenReturn(funTagDTO);
+            when(tagMapper.toDTO(outdoorFun)).thenReturn(outdoorFunDTO);
+            // THEN
+            assertEquals(tagsDTO, tagService.getTagsByParam(1,10,null, null));
+        }
+
+
+
     }
 
     @Nested
@@ -150,41 +265,37 @@ class TagServiceTest {
     class createTagTests {
         @Test
         @DisplayName("tag correctly inserted")
-        void createTagShouldInsertNewTagAndReturnInsertedTag() {
+        void createTagShouldInsertNewTagAndReturnInsertedTag() throws InvalidInputException, AlreadyExistException, NotFoundException {
             // GIVEN
-            Tag tagToBeInserted = new Tag();
+            var tagToBeInserted = new Tag();
             tagToBeInserted.setName("cool");
-            TagDTO tagDTOToBeInserted = new TagDTO();
-            tagDTOToBeInserted.setName("cool");
-            Tag insertedTag = new Tag();
+            var tagDTOToBeInserted = new TagDTO(null, "cool");
+            var insertedTag = new Tag();
             insertedTag.setName("cool");
             insertedTag.setId(1);
-            TagDTO insertedTagDTO = new TagDTO();
-            insertedTagDTO.setName("cool");
-            insertedTagDTO.setId(1);
+            var insertedTagDTO = new TagDTO(1, "cool");
             // WHEN
             when(tagMapper.toModel(tagDTOToBeInserted)).thenReturn(tagToBeInserted);
-            when(tagDAO.createTag(tagToBeInserted)).thenReturn(insertedTag);
+            when(tagDAO.create(tagToBeInserted)).thenReturn(insertedTag);
             when(tagMapper.toDTO(insertedTag)).thenReturn(insertedTagDTO);
             // THEN
-            assertEquals(insertedTagDTO, tagService.addTag(tagDTOToBeInserted));
+            assertEquals(insertedTagDTO, tagService.create(tagDTOToBeInserted));
         }
 
         @Test
         @DisplayName("create tag with name which already exist in db")
-        void createTagWithNameThatAlreadyExistInDbShouldThrowException() {
+        void createTagWithNameThatAlreadyExistInDbShouldThrowException() throws NotFoundException {
             // GIVEN
-            Tag tagToBeInserted = new Tag();
+            var tagToBeInserted = new Tag();
             tagToBeInserted.setName("cool");
-            TagDTO tagDTOToBeInserted = new TagDTO();
-            tagDTOToBeInserted.setName("cool");
+            var tagDTOToBeInserted = new TagDTO(null, "cool");
             List<Tag> tagsInDb = new ArrayList<>();
             tagsInDb.add(tagToBeInserted);
             // WHEN
             when(tagMapper.toModel(tagDTOToBeInserted)).thenReturn(tagToBeInserted);
             when(tagDAO.findAll()).thenReturn(tagsInDb);
             // THEN
-            assertThrows(AlreadyExistException.class, () -> tagService.addTag(tagDTOToBeInserted));
+            assertThrows(AlreadyExistException.class, () -> tagService.create(tagDTOToBeInserted));
         }
 
         @Test
@@ -192,23 +303,23 @@ class TagServiceTest {
         void createTagWithInvalidNameShouldThrowException() {
             // GIVEN
             String name = null;
-            TagDTO invalidTag = new TagDTO();
+            var invalidTag = new TagDTO(1, name);
             // WHEN
-            invalidTag.setName(name);
+
             // THEN
-            assertThrows(InvalidInputException.class, () -> tagService.addTag(invalidTag));
+            assertThrows(InvalidInputException.class, () -> tagService.create(invalidTag));
         }
 
         @Test
         @DisplayName("create tag with empty name")
         void createTagWithEmptyNameShouldThrowException() {
             // GIVEN
-            String name = "  ";
-            TagDTO invalidTag = new TagDTO();
+            var name = "  ";
+            var invalidTag = new TagDTO(1, name);
             // WHEN
-            invalidTag.setName(name);
+
             // THEN
-            assertThrows(InvalidInputException.class, () -> tagService.addTag(invalidTag));
+            assertThrows(InvalidInputException.class, () -> tagService.create(invalidTag));
         }
     }
 
@@ -217,38 +328,24 @@ class TagServiceTest {
     class deleteTagTest {
         @Test
         @DisplayName("tag is correctly removed")
-        void deleteTagShouldRemoveTagOfGivenIdFromDatabase() {
+        void deleteTagShouldRemoveTagOfGivenIdFromDatabase() throws NotFoundException {
             // GIVEN
-            int id = 1;
+            var id = 1;
             // WHEN
-            tagService.deleteTag(id);
+            tagService.delete(id);
             // THEN
-            verify(tagDAO, times(1)).deleteTag(id);
+            verify(tagDAO, times(1)).delete(id);
         }
 
         @Test
         @DisplayName("tag of given name doesn't exist")
-        void deleteTagOfNonExistingIdShouldThrowException() {
+        void deleteTagOfNonExistingIdShouldThrowException() throws NotFoundException {
             // GIVEN
-            int id = 2;
+            var id = 2;
             // WHEN
-            doThrow(new EmptyResultDataAccessException(0)).when(tagDAO).deleteTag(id);
+            doThrow(new EmptyResultDataAccessException(0)).when(tagDAO).delete(id);
             // THEN
-            assertThrows(EmptyResultDataAccessException.class, () -> tagService.deleteTag(id));
+            assertThrows(EmptyResultDataAccessException.class, () -> tagService.delete(id));
         }
-    }
-
-    private Tag setUpTag(int id, String name) {
-        Tag tag = new Tag();
-        tag.setId(id);
-        tag.setName(name);
-        return tag;
-    }
-
-    private TagDTO setUpTagDTO(int id, String name) {
-        TagDTO tagDTO = new TagDTO();
-        tagDTO.setId(id);
-        tagDTO.setName(name);
-        return tagDTO;
     }
 }
