@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Mapper class to transform {@code GiftCertificate} and {@code GiftCertificateDTO} types.
+ * Mapper class to transform {@link GiftCertificate} and {@link GiftCertificateDTO} types.
  */
 @Component
 public class GiftCertificateMapper {
@@ -27,10 +27,10 @@ public class GiftCertificateMapper {
     }
 
     /**
-     * Migrate {@code GiftCertificateDTO} object to {@code GiftCertificate} type.
+     * Transform {@link GiftCertificateDTO} object to {@link GiftCertificate} type.
      *
-     * @param giftCertificateDTO object to transform into {@code GiftCertificate}
-     * @return giftCertificate          transformed {@code GiftCertificate}
+     * @param giftCertificateDTO object to transform into {@link GiftCertificate}
+     * @return giftCertificate          transformed {@link GiftCertificate}
      */
     public GiftCertificate toModel(GiftCertificateDTO giftCertificateDTO) {
         var id = 0;
@@ -55,10 +55,10 @@ public class GiftCertificateMapper {
     }
 
     /**
-     * Migrate {@code GiftCertificate} object to {@code GiftCertificateDTO} type.
+     * Transform {@link GiftCertificate} object to {@link GiftCertificateDTO} type.
      *
-     * @param giftCertificate object to transform into {@code GiftCertificateDTO}
-     * @return giftCertificateDTO   transformed {@code GiftCertificateDTO}
+     * @param giftCertificate object to transform into {@link GiftCertificateDTO}
+     * @return giftCertificateDTO   transformed {@link GiftCertificateDTO}
      */
     public GiftCertificateDTO toDTO(GiftCertificate giftCertificate) {
         var id = giftCertificate.getId();
@@ -85,10 +85,10 @@ public class GiftCertificateMapper {
     }
 
     /**
-     * Migrate set of {@code tag} objects to set of {@code tagDTO} type.
+     * Transform set of {@link Tag} objects to set of {@link TagDTO} type.
      *
-     * @param modelTags objects to transform into {@code tagDTO}
-     * @return tagsDTO   transformed set of {@code tagDTO}
+     * @param modelTags objects to transform into {@link TagDTO}
+     * @return tagsDTO   transformed set of {@link TagDTO}
      */
     private Set<TagDTO> tagsToDTO(Set<Tag> modelTags) {
         Set<TagDTO> tagsDTO = new HashSet<>();
@@ -99,10 +99,10 @@ public class GiftCertificateMapper {
     }
 
     /**
-     * Migrate set of {@code tagDTO} objects to set of {@code tag} type.
+     * Transform set of {@link TagDTO} objects to set of {@link Tag} type.
      *
-     * @param dtoTags objects to transform into {@code tag}
-     * @return tags   transformed set of {@code tag}
+     * @param dtoTags objects to transform into {@link Tag}
+     * @return tags   transformed set of {@link Tag}
      */
     public Set<Tag> tagsToModel(Set<TagDTO> dtoTags) {
         Set<Tag> tagsModel = new HashSet<>();

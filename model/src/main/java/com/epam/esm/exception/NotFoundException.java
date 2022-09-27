@@ -1,10 +1,11 @@
 package com.epam.esm.exception;
 
 /**
- * Exception that should be thrown when the requested item was not found in db.
+ * Should be thrown when the requested item was not found in the database.
  */
 public class NotFoundException extends Exception {
-    public NotFoundException() {
-        super("Requested item not found");
+
+    public NotFoundException(String message) {
+        super(message);
     }
 }

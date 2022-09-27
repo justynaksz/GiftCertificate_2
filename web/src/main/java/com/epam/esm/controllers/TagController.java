@@ -1,10 +1,13 @@
 package com.epam.esm.controllers;
 
-import com.epam.esm.assembler.TagAssembler;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.exception.NotFoundException;
 import com.epam.esm.exceptions.AlreadyExistException;
 import com.epam.esm.exceptions.InvalidInputException;
+import com.epam.esm.hateoas.assembler.TagAssembler;
+import com.epam.esm.hateoas.pagelinker.TagPageLinker;
+import com.epam.esm.model.Tag;
+import com.epam.esm.pagination.Page;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -12,10 +15,11 @@ import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Spring REST controllers for processing requests {@code tag} resource.
+ * Spring REST controllers for processing requests {@link Tag} resource.
  */
 @RestController
 @RequestMapping("/tags")
@@ -23,29 +27,34 @@ public class TagController {
 
     private final TagService tagService;
     private final TagAssembler assembler;
+    private final TagPageLinker pageLinker;
 
     @Autowired
-    public TagController(TagService tagService, TagAssembler assembler) {
+    public TagController(TagService tagService, TagAssembler assembler, TagPageLinker pageLinker) {
         this.tagService = tagService;
         this.assembler = assembler;
+        this.pageLinker = pageLinker;
     }
 
     /**
-     * Gets all {@code tag}.
+     * Gets all {@link Tag}.
      * Handles GET http-request.
      *
      * @return tags   list of all tags in database
      */
     @GetMapping()
-    public CollectionModel<TagDTO> getAllTags(@RequestParam(defaultValue = "1") int index,
-                                              @RequestParam(defaultValue = "5") int size) throws NotFoundException {
-        List<TagDTO> tags = assembler.addLinks(tagService.getAll(index, size).getContent());
-        Link allLink = assembler.getLinkToCollection();
-        return CollectionModel.of(tags, allLink);
+    public CollectionModel<TagDTO> getAllTags(@RequestParam(defaultValue = "1") int page,
+                                              @RequestParam(defaultValue = "5") int size) {
+        Page<TagDTO> pageOfResults = tagService.getAll(page, size);
+        List<TagDTO> tags = assembler.addLinks(pageOfResults.getContent());
+        List<Link> links = new ArrayList<>();
+        links.add(assembler.getLinkToCollection());
+        pageLinker.addPagesLinksInGetAllMethod(pageOfResults, links);
+        return CollectionModel.of(tags, links);
     }
 
     /**
-     * Gets {@code tag} that fits requested id or/and name.
+     * Gets {@link Tag} that fits requested id or/and name.
      * Handles GET http-request.
      *
      * @param id   not required id value
@@ -57,14 +66,17 @@ public class TagController {
                                                   @RequestParam(defaultValue = "5") int size,
                                                   @RequestParam(required = false) Integer id,
                                                   @RequestParam(required = false) String name)
-            throws InvalidInputException, NotFoundException {
-        List<TagDTO> tags = assembler.addLinks(tagService.getTagsByParam(page, size, id, name).getContent());
-        Link allLink = assembler.getLinkToCollection();
-        return CollectionModel.of(tags, allLink);
+            throws InvalidInputException {
+        Page<TagDTO> pageOfResults = tagService.getTagsByParam(page, size, id, name);
+        List<TagDTO> tags = assembler.addLinks(pageOfResults.getContent());
+        List<Link> links = new ArrayList<>();
+        links.add(assembler.getLinkToCollection());
+        pageLinker.addPagesLinksInGetByParamMethod(pageOfResults, links, id, name);
+        return CollectionModel.of(tags, links);
     }
 
     /**
-     * Gets {@code tag} with requested id.
+     * Gets {@link Tag} with requested id.
      * Handles GET http-request.
      *
      * @param id required id value
@@ -76,7 +88,7 @@ public class TagController {
     }
 
     /**
-     * Creates new {@code tag}.
+     * Creates new {@link Tag}.
      * Handles POST http-request.
      *
      * @param tagDTOToInsert tag to be inserted into database
@@ -84,12 +96,12 @@ public class TagController {
      */
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public TagDTO createTag(@RequestBody TagDTO tagDTOToInsert) throws InvalidInputException, AlreadyExistException, NotFoundException {
+    public TagDTO createTag(@RequestBody TagDTO tagDTOToInsert) throws InvalidInputException, AlreadyExistException {
         return assembler.addLink(tagService.create(tagDTOToInsert));
     }
 
     /**
-     * Deletes {@code tag} with requested id.
+     * Deletes {@link Tag} with requested id.
      * Handles DELETE http-request.
      *
      * @param id requested id

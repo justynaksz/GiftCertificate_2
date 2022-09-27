@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Presents access to service operations with {@code GiftCertificate}.
+ * Presents access to service operations with {@link GiftCertificate}.
  */
 @Service
 public class GiftCertificateService {
@@ -32,26 +32,25 @@ public class GiftCertificateService {
     private final GiftCertificateDAO giftCertificateDAO;
     private final GiftCertificateMapper giftCertificateMapper;
     private final TagDAO tagDAO;
+    private static final String INVALID_INPUT_MESSAGE = "At least one of given parameters is invalid";
 
     @Autowired
-    public GiftCertificateService(GiftCertificateDAO giftCertificateDAO, GiftCertificateMapper giftCertificateMapper, TagDAO tagDAO) {
+    public GiftCertificateService(GiftCertificateDAO giftCertificateDAO, TagDAO tagDAO, GiftCertificateMapper giftCertificateMapper) {
         this.giftCertificateDAO = giftCertificateDAO;
-        this.giftCertificateMapper = giftCertificateMapper;
         this.tagDAO = tagDAO;
+        this.giftCertificateMapper = giftCertificateMapper;
     }
 
-
     /**
-     * Finds {@code giftCertificate} with requested list of {@code tag} and requested param optionally sorted by name or date.
+     * Finds {@link GiftCertificate} with requested list of {@link Tag} and requested param optionally sorted by name or date.
      *
      * @param sortParamString     String - sorting by giftCertificate's name / date
      * @param sortDirectionString String - sorting in ascending / descending order
      * @param key           key word in giftCertificate's name or description
      * @param tags          list of tag's names as search criteria
      * @return giftCertificates lists        giftCertificates that fits criteria
-     * @throws NotFoundException in case of no result in database
      */
-    public Page<GiftCertificateDTO> getByParam(int page, int size, String sortParamString, String sortDirectionString, String key, Set<String> tags) throws NotFoundException {
+    public Page<GiftCertificateDTO> getByParam(int page, int size, String sortParamString, String sortDirectionString, String key, Set<String> tags) {
         var sortParamEnum = SortParam.convertString(sortParamString);
         var sortDirectionEnum = SortDirection.convertString(sortDirectionString);
         var filter = new GiftCertificateFilter(sortParamEnum, sortDirectionEnum, key, tags);
@@ -60,11 +59,11 @@ public class GiftCertificateService {
         for (GiftCertificate giftCertificate : giftCertificates) {
             giftCertificateDTOs.add(giftCertificateMapper.toDTO(giftCertificate));
         }
-        return new Page(page, size, giftCertificateDTOs.size(), giftCertificateDTOs);
+        return new Page<>(page, size, giftCertificateDAO.countCertificatesFoundByParam(filter), giftCertificateDTOs);
     }
 
     /**
-     * Finds {@code giftCertificate} of given id value.
+     * Finds {@link GiftCertificate} of given id value.
      *
      * @param id int id value
      * @return gift certificate             gift certificate of given id value
@@ -73,27 +72,26 @@ public class GiftCertificateService {
      */
     public GiftCertificateDTO getById(int id) throws InvalidInputException, NotFoundException {
         if (id <= 0) {
-            throw new InvalidInputException();
+            throw new InvalidInputException(INVALID_INPUT_MESSAGE);
         }
         var giftCertificate = giftCertificateDAO.findById(id);
         return giftCertificateMapper.toDTO(giftCertificate);
     }
 
     /**
-     * Finds all {@code giftCertificate}.
+     * Finds all {@link GiftCertificate}.
      *
      * @return lists of giftCertificates    all giftCertificates
-     * @throws NotFoundException in case of no result in database
      */
-    public Page<GiftCertificateDTO> getAll(int index, int size) throws NotFoundException {
+    public Page<GiftCertificateDTO> getAll(int index, int size){
         List<GiftCertificate> giftCertificates = giftCertificateDAO.findAll(index, size);
         List<GiftCertificateDTO> giftCertificateDTOs = new ArrayList<>();
         giftCertificates.forEach(giftCertificate -> giftCertificateDTOs.add(giftCertificateMapper.toDTO(giftCertificate)));
-        return new Page<>(index, size, giftCertificateDTOs.size(), giftCertificateDTOs);
+        return new Page<>(index, size, giftCertificateDAO.findAll().size(), giftCertificateDTOs);
     }
 
     /**
-     * Creates new {@code giftCertificate} entity.
+     * Creates new {@link GiftCertificate} entity.
      *
      * @param giftCertificateDTO instance to be inserted into database
      * @return giftCertificate              instance with specified id value that has been inserted into database
@@ -101,11 +99,7 @@ public class GiftCertificateService {
      */
     @Transactional
     public GiftCertificateDTO addGiftCertificate(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException, NotFoundException {
-        if (giftCertificateDTO.getName() == null || giftCertificateDTO.getName().trim().isEmpty()
-                || giftCertificateDTO.getDescription() == null || giftCertificateDTO.getDescription().trim().isEmpty()
-                || giftCertificateDTO.getPrice().intValue() <= 0 || giftCertificateDTO.getDuration() <= 0) {
-            throw new InvalidInputException();
-        }
+        validateInputData(giftCertificateDTO);
         var giftCertificate = giftCertificateMapper.toModel(giftCertificateDTO);
         giftCertificate.setCreateDate(LocalDateTime.now());
         Set<Tag> tags = giftCertificate.getTags();
@@ -117,50 +111,26 @@ public class GiftCertificateService {
     }
 
     /**
-     * Updates {@code giftCertificate} contained in database.
+     * Updates {@link GiftCertificate} contained in database.
      *
      * @param giftCertificateDTO instance to be updated in database
+     * @return updated giftCertificate
      * @throws InvalidInputException in case of negative price or duration input
      * @throws NotFoundException     in case of giftCertificate to be updated is not present in database
      */
     @Transactional
-    public void updateGiftCertificate(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException, NotFoundException {
+    public GiftCertificateDTO updateGiftCertificate(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException, NotFoundException {
         var updatedGiftCertificate = giftCertificateDAO.findById(giftCertificateDTO.getId());
         if (updatedGiftCertificate == null) {
-            throw new NotFoundException();
+            throw new NotFoundException("Gift certificate of requested id = " + giftCertificateDTO.getId() + " not found.");
         }
-        if (giftCertificateDTO.getName() != null || !giftCertificateDTO.getName().trim().isEmpty()) {
-            updatedGiftCertificate.setName(giftCertificateDTO.getName());
-        }
-        if (giftCertificateDTO.getDescription() != null || !giftCertificateDTO.getDescription().isEmpty()) {
-            updatedGiftCertificate.setDescription(giftCertificateDTO.getDescription());
-        }
-        if (giftCertificateDTO.getPrice() != null) {
-            if (giftCertificateDTO.getPrice().intValue() > 0) {
-                updatedGiftCertificate.setPrice(giftCertificateDTO.getPrice());
-            } else {
-                throw new InvalidInputException();
-            }
-        }
-        if (giftCertificateDTO.getDuration() != null) {
-            if (giftCertificateDTO.getDuration() > 0) {
-                updatedGiftCertificate.setDuration(giftCertificateDTO.getDuration());
-            } else {
-                throw new InvalidInputException();
-            }
-        }
-        if (giftCertificateDTO.getTags() != null) {
-            Set<TagDTO> tagsDTO = giftCertificateDTO.getTags();
-            Set<Tag> tags = giftCertificateMapper.tagsToModel(tagsDTO);
-            Set<Tag> tagsWithId = getTagsWithId(tags);
-            updatedGiftCertificate.setTags(tagsWithId);
-        }
+        prepareGiftCertificateToUpdate(updatedGiftCertificate, giftCertificateDTO);
         updatedGiftCertificate.setLastUpdateDate(LocalDateTime.now());
-        giftCertificateDAO.updateGiftCertificate(updatedGiftCertificate);
+        return giftCertificateMapper.toDTO(giftCertificateDAO.updateGiftCertificate(updatedGiftCertificate));
     }
 
     /**
-     * Deletes {@code giftCertificate} of given id value.
+     * Deletes {@link GiftCertificate} of given id value.
      *
      * @param id int id value of giftCertificate instance to be removed
      * @throws NotFoundException in case of giftCertificate to be deleted is not present in database
@@ -184,7 +154,7 @@ public class GiftCertificateService {
         return tagsWithId;
     }
 
-    private boolean checkIfTagExistInDatabase(Tag tag) throws NotFoundException {
+    private boolean checkIfTagExistInDatabase(Tag tag) {
         var isTagInDatabase = false;
         List<Tag> tagsInDatabase = tagDAO.findAll();
         for (Tag tagInDatabase : tagsInDatabase) {
@@ -194,5 +164,78 @@ public class GiftCertificateService {
             }
         }
         return isTagInDatabase;
+    }
+
+    private void validateInputData(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException {
+        validateName(giftCertificateDTO);
+        validateDescription(giftCertificateDTO);
+        validatePriceAndDuration(giftCertificateDTO);
+    }
+
+    private void validateName(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException {
+        if (giftCertificateDTO.getName() == null || giftCertificateDTO.getName().trim().isEmpty()) {
+            throw new InvalidInputException(INVALID_INPUT_MESSAGE);
+        }
+    }
+
+    private void validateDescription(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException {
+        if (giftCertificateDTO.getDescription() == null || giftCertificateDTO.getDescription().trim().isEmpty()) {
+            throw new InvalidInputException(INVALID_INPUT_MESSAGE);
+        }
+    }
+
+    private void validatePriceAndDuration(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException {
+        if (giftCertificateDTO.getPrice().intValue() <= 0 || giftCertificateDTO.getDuration() <= 0) {
+            throw new InvalidInputException(INVALID_INPUT_MESSAGE);
+        }
+    }
+
+    private void prepareGiftCertificateToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) throws InvalidInputException, NotFoundException {
+        prepareNameToUpdate(updatedGiftCertificate, giftCertificateDTO);
+        prepareDescriptionToUpdate(updatedGiftCertificate, giftCertificateDTO);
+        preparePriceToUpdate(updatedGiftCertificate, giftCertificateDTO);
+        prepareDurationToUpdate(updatedGiftCertificate, giftCertificateDTO);
+        prepareTagsToUpdate(updatedGiftCertificate, giftCertificateDTO);
+    }
+
+    private void prepareNameToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) {
+        if (giftCertificateDTO.getName() != null || !giftCertificateDTO.getName().trim().isEmpty()) {
+            updatedGiftCertificate.setName(giftCertificateDTO.getName());
+        }
+    }
+
+    private void prepareDescriptionToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) {
+        if (giftCertificateDTO.getDescription() != null || !giftCertificateDTO.getDescription().isEmpty()) {
+            updatedGiftCertificate.setDescription(giftCertificateDTO.getDescription());
+        }
+    }
+
+    private void preparePriceToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) throws InvalidInputException {
+        if (giftCertificateDTO.getPrice() != null) {
+            if (giftCertificateDTO.getPrice().intValue() > 0) {
+                updatedGiftCertificate.setPrice(giftCertificateDTO.getPrice());
+            } else {
+                throw new InvalidInputException(INVALID_INPUT_MESSAGE);
+            }
+        }
+    }
+
+    private void prepareDurationToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) throws InvalidInputException {
+        if (giftCertificateDTO.getDuration() != null) {
+            if (giftCertificateDTO.getDuration() > 0) {
+                updatedGiftCertificate.setDuration(giftCertificateDTO.getDuration());
+            } else {
+                throw new InvalidInputException(INVALID_INPUT_MESSAGE);
+            }
+        }
+    }
+
+    private void prepareTagsToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) throws NotFoundException {
+        if (giftCertificateDTO.getTags() != null) {
+            Set<TagDTO> tagsDTO = giftCertificateDTO.getTags();
+            Set<Tag> tags = giftCertificateMapper.tagsToModel(tagsDTO);
+            Set<Tag> tagsWithId = getTagsWithId(tags);
+            updatedGiftCertificate.setTags(tagsWithId);
+        }
     }
 }

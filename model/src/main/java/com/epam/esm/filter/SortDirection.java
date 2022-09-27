@@ -1,7 +1,7 @@
 package com.epam.esm.filter;
 
 /**
- * Possible enums for sorting direction.
+ * Representation of possible sorting directions.
  */
 public enum SortDirection {
     ASC, DESC;

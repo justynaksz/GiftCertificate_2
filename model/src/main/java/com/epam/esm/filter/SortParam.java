@@ -1,7 +1,7 @@
 package com.epam.esm.filter;
 
 /**
- * Possible enums for sorting parameter.
+ * Represents possible sorting parameters.
  */
 public enum SortParam {
     NAME, DATE;

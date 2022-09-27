@@ -47,14 +47,6 @@ public class Tag implements Serializable {
         this.name = name;
     }
 
-    public Set<GiftCertificate> getGiftCertificates() {
-        return giftCertificates;
-    }
-
-    public void setGiftCertificates(Set<GiftCertificate> giftCertificates) {
-        this.giftCertificates = giftCertificates;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

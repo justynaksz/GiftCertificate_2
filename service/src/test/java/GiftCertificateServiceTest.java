@@ -7,6 +7,7 @@ import com.epam.esm.exceptions.InvalidInputException;
 import com.epam.esm.mapper.GiftCertificateMapper;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
+import com.epam.esm.pagination.Page;
 import com.epam.esm.service.GiftCertificateService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -67,18 +67,18 @@ class GiftCertificateServiceTest {
         @DisplayName("gift certificate of given id doesn't exist")
         void findByIdShouldThrowExceptionIfGiftCertificateDoesNotExist() throws NotFoundException {
             // GIVEN
-            Integer id = 1;
+            int id = 1;
             // WHEN
-            when(giftCertificateDAO.findById(id)).thenThrow(EmptyResultDataAccessException.class);
+            when(giftCertificateDAO.findById(id)).thenThrow(NotFoundException.class);
             // THEN
-            assertThrows(EmptyResultDataAccessException.class, () -> giftCertificateService.getById(id));
+            assertThrows(NotFoundException.class, () -> giftCertificateService.getById(id));
         }
 
         @Test
         @DisplayName("given id is invalid")
         void findByIdShouldThrowExceptionIfIdIsNegative() {
             // GIVEN
-            Integer id = -2;
+            int id = -2;
             // WHEN
 
             // THEN
@@ -91,8 +91,10 @@ class GiftCertificateServiceTest {
     class findAll {
         @Test
         @DisplayName("correctly find all")
-        void findAllShouldReturnListOfAllGiftCertificatesInDb() throws NotFoundException {
+        void findAllShouldReturnListOfAllGiftCertificatesInDb() {
             // GIVEN
+            int pageNumber = 1;
+            int pageSize = 10;
             var paintballCertificate = new GiftCertificate(1, "Paintball voucher",
                     "2 hours of paintball match in Paintball-World", BigDecimal.valueOf(49.99),
                     180,LocalDateTime.parse("2022-03-18T12:24:47.241"),
@@ -113,23 +115,26 @@ class GiftCertificateServiceTest {
             List<GiftCertificateDTO> giftCertificatesDTO = new ArrayList<>();
             giftCertificatesDTO.add(paintballCertificateDTO);
             giftCertificatesDTO.add(aquaparkCertificateDTO);
+            Page<GiftCertificateDTO> page = new Page<>(pageNumber, pageSize, giftCertificatesDTO.size(), giftCertificatesDTO);
             // WHEN
-            when(giftCertificateDAO.findAll()).thenReturn(giftCertificates);
+            when(giftCertificateDAO.findAll(pageNumber, pageSize)).thenReturn(giftCertificates);
             when(giftCertificateMapper.toDTO(paintballCertificate)).thenReturn(paintballCertificateDTO);
             when(giftCertificateMapper.toDTO(aquaparkCertificate)).thenReturn(aquaparkCertificateDTO);
             // THEN
-            assertEquals(giftCertificatesDTO, giftCertificateService.getAll(1,10));
+            assertEquals(page, giftCertificateService.getAll(pageNumber,pageSize));
         }
 
         @Test
         @DisplayName("find all when no records in db")
-        void findAllShouldThrowExceptionWhenNoDataInDatabase() throws NotFoundException {
+        void findAllShouldReturnEmptyListWhenNoDataInDatabase() {
             // GIVEN
-
+            int pageNumber = 1;
+            int pageSize = 10;
+            Page<GiftCertificateDTO> page = new Page<>(pageNumber, pageSize, 0, new ArrayList<>());
             // WHEN
-            when(giftCertificateDAO.findAll()).thenThrow(NotFoundException.class);
+            when(giftCertificateDAO.findAll(pageNumber, pageSize)).thenReturn(new ArrayList<>());
             // THEN
-            assertThrows(NotFoundException.class, () -> giftCertificateService.getAll(1, 10));
+            assertEquals(page, giftCertificateService.getAll(pageNumber,pageSize));
         }
     }
 
@@ -219,8 +224,7 @@ class GiftCertificateServiceTest {
         @DisplayName("create gift certificate with invalid input")
         void createGiftCertificateWithInvalidInputShouldThrowException() {
             // GIVEN
-            String name = null;
-            var giftToBeInsertedDTO = new GiftCertificateDTO(0, name, "Movie session in Cinema City",
+            var giftToBeInsertedDTO = new GiftCertificateDTO(0, null, "Movie session in Cinema City",
                     BigDecimal.valueOf(15.00), 200, "2022-03-18T12:24:47.241", "2022-06-18T12:24:47.241", new HashSet<>());
             // WHEN
 
@@ -245,23 +249,29 @@ class GiftCertificateServiceTest {
     @Nested
     @DisplayName("update gift certificate tests")
     class updateGiftCertificateTests {
-
         @Test
         @DisplayName("gift certificate correctly updated")
         void updateGiftCertificateShouldCorrectlyUpdateSpecifiedParam() throws NotFoundException, InvalidInputException {
             // GIVEN
-            var giftCertificateDTO = new GiftCertificateDTO(3, "Movie session",
-                    "Movie session in Multikino", BigDecimal.valueOf(30.00), 250,
+            var giftCertificateDTOInput = new GiftCertificateDTO(3, "Movie session",
+                    "Movie session in Multikino", null, null,
                     null, null, null);
             var giftCertificate = new GiftCertificate(3, "Movie night",
                     "Movie session in Cinema City", BigDecimal.valueOf(15.00), 200,
                     LocalDateTime.parse("2022-03-18T12:24:47.241"),
                     LocalDateTime.parse("2022-06-18T12:24:47.241"), null);
+            var giftCertificateUpdated = new GiftCertificate(3, "Movie session",
+                    "Movie session in Multikino", BigDecimal.valueOf(15.00), 200,
+                    null, null, null);
+            var giftCertificateUpdatedDTO = new GiftCertificateDTO(3, "Movie session",
+                    "Movie session in Multikino", BigDecimal.valueOf(15.00), 200,
+                    null, null, null);
             // WHEN
-            when(giftCertificateDAO.findById(giftCertificateDTO.getId())).thenReturn(giftCertificate);
-            giftCertificateService.updateGiftCertificate(giftCertificateDTO);
+            when(giftCertificateDAO.findById(giftCertificateDTOInput.getId())).thenReturn(giftCertificate);
+            when(giftCertificateDAO.updateGiftCertificate(giftCertificateUpdated)).thenReturn(giftCertificateUpdated);
+            when(giftCertificateMapper.toDTO(giftCertificateUpdated)).thenReturn(giftCertificateUpdatedDTO);
             // THEN
-            verify(giftCertificateDAO, times(1)).updateGiftCertificate(giftCertificate);
+            assertEquals(giftCertificateUpdatedDTO, giftCertificateService.updateGiftCertificate(giftCertificateDTOInput));
         }
 
         @Test
@@ -280,8 +290,7 @@ class GiftCertificateServiceTest {
         @DisplayName("update gift certificate with invalid input")
         void updateGiftCertificateWithInvalidInputShouldTrowException() {
             // GIVEN
-            String name = null;
-            var giftToBeUpdatedDTO = new GiftCertificateDTO(0, name, "Movie session in Cinema City",
+            var giftToBeUpdatedDTO = new GiftCertificateDTO(0, null, "Movie session in Cinema City",
                     BigDecimal.valueOf(15.00), 200, "2022-03-18T12:24:47.241",
                     "2022-06-18T12:24:47.241", new HashSet<>());
             // WHEN
@@ -325,16 +334,16 @@ class GiftCertificateServiceTest {
             // GIVEN
             var giftCertificateIdToDelete = 5;
             // WHEN
-            doThrow(new EmptyResultDataAccessException(0)).when(giftCertificateDAO).delete(giftCertificateIdToDelete);
+            doThrow(new NotFoundException("Item of id = " + giftCertificateIdToDelete + " not found.")).when(giftCertificateDAO).delete(giftCertificateIdToDelete);
             // THEN
-            assertThrows(EmptyResultDataAccessException.class, () -> giftCertificateService.deleteGiftCertificate(giftCertificateIdToDelete));
+            assertThrows(NotFoundException.class, () -> giftCertificateService.deleteGiftCertificate(giftCertificateIdToDelete));
         }
     }
 
     private Set<Tag> setUpTags(List<String> tagsNames, boolean isInserted) {
         Set<Tag> tags = new HashSet<>();
         var id = 1;
-        Tag tag = null;
+        Tag tag;
         for (String name : tagsNames) {
             if (isInserted) {
                 tag = new Tag(id, name);
@@ -350,7 +359,7 @@ class GiftCertificateServiceTest {
     private Set<TagDTO> setUpTagsDTO(List<String> tagsNames, boolean isInserted) {
         Set<TagDTO> tags = new HashSet<>();
         var id = 1;
-        TagDTO tag = null;
+        TagDTO tag;
         for (String name : tagsNames) {
             if (isInserted) {
                 tag = new TagDTO(id, name);
@@ -362,5 +371,4 @@ class GiftCertificateServiceTest {
         }
         return tags;
     }
-
 }

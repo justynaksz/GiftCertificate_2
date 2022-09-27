@@ -17,7 +17,6 @@ import java.util.Set;
 class GiftCertificateMapperTest {
 
     private GiftCertificateMapper giftCertificateMapper;
-    private TagMapper tagMapper;
     private GiftCertificate giftCertificate;
     private GiftCertificateDTO giftCertificateDTO;
     private Tag shopping;
@@ -42,7 +41,7 @@ class GiftCertificateMapperTest {
     void initEach() {
         tags = new HashSet<>();
         tagsDTO = new HashSet<>();
-        tagMapper = new TagMapper();
+        TagMapper tagMapper = new TagMapper();
         giftCertificateMapper = new GiftCertificateMapper(tagMapper);
     }
 

@@ -3,29 +3,39 @@ package com.epam.esm.dao;
 import com.epam.esm.exception.NotFoundException;
 import com.epam.esm.filter.GiftCertificateFilter;
 import com.epam.esm.model.GiftCertificate;
+import com.epam.esm.model.Tag;
 
 import java.util.List;
 
 /**
- * CRUD operations for {@code GiftCertificate} entity.
+ * CRUD operations for {@link GiftCertificate} entity.
  */
 public interface GiftCertificateDAO extends GenericDAO<GiftCertificate, Integer> {
 
     /**
-     * Finds {@code giftCertificate} with requested list of {@code tag} and requested param optionally sorted by name or date.
+     * Finds {@link GiftCertificate} with requested list of {@link Tag} and requested param optionally sorted by name or date.
      *
      * @param page index of page
      * @param size max size of given page
      * @param filter instance with searching and sorting params
      * @return giftCertificates lists        giftCertificates that fits criteria
-     * @throws NotFoundException in case of no giftCertificate that fits criteria has been found in database
      */
-    List<GiftCertificate> findByParam(int page, int size, GiftCertificateFilter filter) throws NotFoundException;
+    List<GiftCertificate> findByParam(int page, int size, GiftCertificateFilter filter);
 
     /**
-     * Updates {@code giftCertificate} contained in database.
+     * Returns total count of {@link GiftCertificate} found with specified filter.
+     *
+     * @param filter instance with searching and sorting params
+     * @return count of found {@link GiftCertificate}
+     */
+    int countCertificatesFoundByParam(GiftCertificateFilter filter);
+
+    /**
+     * Updates {@link GiftCertificate} contained in database.
      *
      * @param giftCertificate GiftCertificate instance to be updated in database
+     * @return updated giftCertificate
+     * @throws NotFoundException in case of gift certificate of given id has not been found
      */
-    void updateGiftCertificate(GiftCertificate giftCertificate);
+    GiftCertificate updateGiftCertificate(GiftCertificate giftCertificate) throws NotFoundException;
 }

@@ -15,13 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Presents access to service operations with {@code Tag}.
+ * Presents access to service operations with {@link Tag}.
  */
 @Service
 public class TagService {
 
     private final TagDAO tagDAO;
     private final TagMapper tagMapper;
+    private static final String INVALID_NAME = "Given tag's name is invalid.";
+    private static final String INVALID_ID = "Given tag's id is invalid.";
 
     @Autowired
     public TagService(TagDAO tagDAO, TagMapper tagMapper) {
@@ -30,19 +32,19 @@ public class TagService {
     }
 
     /**
-     * Finds all {@code tag}.
+     * Finds all {@link Tag}.
      *
      * @return tags    list of all tags on given page
      */
-    public Page<TagDTO> getAll(int page, int size) throws NotFoundException {
+    public Page<TagDTO> getAll(int page, int size) {
         List<Tag> tags = tagDAO.findAll(page, size);
         List<TagDTO> tagDTOs = new ArrayList<>();
         tags.forEach(tag -> tagDTOs.add(tagMapper.toDTO(tag)));
-        return new Page<>(page, size, tagDTOs.size(), tagDTOs);
+        return new Page<>(page, size, tagDAO.findAll().size(), tagDTOs);
     }
 
     /**
-     * Finds {@code tag} of given id value.
+     * Finds {@link Tag} of given id value.
      *
      * @param id int id value
      * @return tag                   tag of given id value
@@ -50,15 +52,13 @@ public class TagService {
      * @throws NotFoundException     in case of no result in database
      */
     public TagDTO getById(Integer id) throws InvalidInputException, NotFoundException {
-        if (id <= 0) {
-            throw new InvalidInputException();
-        }
+        validateId(id);
         var tag = tagDAO.findById(id);
         return tagMapper.toDTO(tag);
     }
 
     /**
-     * Finds {@code tag} of given id value.
+     * Finds {@link Tag} of given id value.
      *
      * @param name requested String tag's name
      * @return tag of given name
@@ -66,45 +66,36 @@ public class TagService {
      * @throws NotFoundException     in case of no result in database
      */
     public TagDTO getByName(String name) throws NotFoundException, InvalidInputException {
-        if (name == null || name.trim().isEmpty()) {
-            throw new InvalidInputException();
-        }
+        validateName(name);
         var tag = tagDAO.getByName(name);
         return tagMapper.toDTO(tag);
     }
 
     /**
-     * Finds {@code tag} by given id or/and name.
+     * Finds {@link Tag} by given id or/and name.
      *
      * @param id            requested Integer id
      * @param name          requested String name
      * @return tags         list of all tags that fits requested criteria
      */
-    public Page<TagDTO> getTagsByParam(int page, int size, Integer id, String name) throws NotFoundException, InvalidInputException {
-        if (id != null && id <= 0) {
-            throw new InvalidInputException();
-        }
-        if (name != null && name.trim().isEmpty()) {
-            throw new InvalidInputException();
-        }
+    public Page<TagDTO> getTagsByParam(int page, int size, Integer id, String name) throws InvalidInputException {
+        validateInput(id, name);
         List<Tag> tags = tagDAO.getTagsByParam(page, size, id, name);
         List<TagDTO> tagDTOs = new ArrayList<>();
         tags.forEach(tag -> tagDTOs.add(tagMapper.toDTO(tag)));
-        return new Page<>(page, size, tagDTOs.size(), tagDTOs);
+        return new Page<>(page, size, tagDAO.countTagsFoundByParam(id, name), tagDTOs);
     }
 
     /**
-     * Creates new {@code tag} entity.
+     * Creates new {@link Tag} entity.
      *
      * @param tagDTO TagDTO instance to be inserted into database
      * @return tagDTO                      instance with specified id value that has been inserted into database
      * @throws InvalidInputException       in case of null or empty tag name
      * @throws AlreadyExistException       in case tag of this name already exists in database
      */
-    public TagDTO create(TagDTO tagDTO) throws InvalidInputException, AlreadyExistException, NotFoundException {
-        if (tagDTO.getName() == null || tagDTO.getName().trim().isEmpty()) {
-            throw new InvalidInputException();
-        }
+    public TagDTO create(TagDTO tagDTO) throws InvalidInputException, AlreadyExistException{
+        validateName(tagDTO.getName());
         var tag = tagMapper.toModel(tagDTO);
         for (Tag tagInDb : tagDAO.findAll()) {
             if (tagInDb.getName().equals(tag.getName())) {
@@ -117,12 +108,29 @@ public class TagService {
     }
 
     /**
-     * Deletes {@code tag} of given id value.
+     * Deletes {@link Tag} of given id value.
      *
      * @param id                        int value of tag instance to be removed
      * @throws NotFoundException        in case of tag to be deleted is not present in database
      */
     public void delete(Integer id) throws NotFoundException {
         tagDAO.delete(id);
+    }
+
+    private void validateInput(Integer id, String name) throws InvalidInputException {
+        validateId(id);
+        validateName(name);
+    }
+
+    private void validateId(Integer id) throws InvalidInputException {
+        if (id != null && id <= 0) {
+            throw new InvalidInputException(INVALID_ID);
+        }
+    }
+
+    private void validateName(String name) throws InvalidInputException {
+        if (name != null && name.trim().isEmpty()) {
+            throw new InvalidInputException(INVALID_NAME);
+        }
     }
 }

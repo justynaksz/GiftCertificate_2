@@ -5,6 +5,7 @@ import com.epam.esm.exceptions.AlreadyExistException;
 import com.epam.esm.exceptions.InvalidInputException;
 import com.epam.esm.mapper.TagMapper;
 import com.epam.esm.model.Tag;
+import com.epam.esm.pagination.Page;
 import com.epam.esm.service.TagService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -81,8 +82,11 @@ class TagServiceTest {
     class findAllTest {
         @Test
         @DisplayName("find all test")
-        void findAllShouldReturnAllTagsFromDb() throws NotFoundException {
+        void findAllShouldReturnAllTagsFromDb() {
             // GIVEN
+            int pageNumber = 1;
+            int pageSize = 10;
+
             var funId = 1;
             var photoId = 2;
             var kidsId = 3;
@@ -109,24 +113,27 @@ class TagServiceTest {
             tagsDTO.add(photoDTO);
             tagsDTO.add(kidsDTO);
 
+            Page<TagDTO> page = new Page<>(pageNumber, pageSize, tagsDTO.size(), tagsDTO);
             // WHEN
-            when(tagDAO.findAll()).thenReturn(tags);
+            when(tagDAO.findAll(pageNumber, pageSize)).thenReturn(tags);
             when(tagMapper.toDTO(kidsTag)).thenReturn(kidsDTO);
             when(tagMapper.toDTO(photoTag)).thenReturn(photoDTO);
             when(tagMapper.toDTO(funTag)).thenReturn(funDTO);
             // THEN
-            assertEquals(tagsDTO, tagService.getAll(1,10));
+            assertEquals(page, tagService.getAll(pageNumber,pageSize));
         }
 
         @Test
         @DisplayName("find all when no record in db")
-        void findAllWhenNoRecordsInDatabase() throws NotFoundException {
+        void findAllWhenNoRecordsInDatabase() {
             // GIVEN
-
+            int pageNumber = 1;
+            int pageSize = 10;
+            Page<TagDTO> page = new Page<>(pageNumber, pageSize, 0, new ArrayList<>());
             // WHEN
-            when(tagDAO.findAll()).thenThrow(NotFoundException.class);
+            when(tagDAO.findAll(pageNumber, pageSize)).thenReturn(new ArrayList<>());
             // THEN
-            assertThrows(NotFoundException.class, () -> tagService.getAll(1,10));
+            assertEquals(page, tagService.getAll(pageNumber, pageSize));
         }
     }
 
@@ -140,12 +147,9 @@ class TagServiceTest {
         void findByNameShouldReturnCorrectTag() throws NotFoundException, InvalidInputException {
             // GIVEN
             var fun = "fun";
-            var outdoorFun = "outdoor fun";
             var id = 1;
             var funTag = new Tag(id, fun);
             var funDTO = new TagDTO(id, fun);
-            List<TagDTO> tagsDTO = new ArrayList<>();
-            tagsDTO.add(funDTO);
             // WHEN
             when(tagDAO.getByName(fun)).thenReturn(funTag);
             when(tagMapper.toDTO(funTag)).thenReturn(funDTO);
@@ -168,11 +172,11 @@ class TagServiceTest {
         @DisplayName("find tag with null name")
         void findByNameShouldThrowExceptionIfNameIsNull() {
             // GIVEN
-            String name = null;
+
             // WHEN
 
             // THEN
-            assertThrows(InvalidInputException.class, () -> tagService.getByName(name));
+            assertThrows(InvalidInputException.class, () -> tagService.getByName(null));
         }
 
         @Test
@@ -192,8 +196,10 @@ class TagServiceTest {
     class findByParamsTests {
         @Test
         @DisplayName("tags correctly found by name")
-        void getByParamCorrectlyFoundByName() throws NotFoundException, InvalidInputException {
+        void getByParamCorrectlyFoundByName() throws InvalidInputException {
             // GIVEN
+            int pageSize = 10;
+            int pageNumber = 1;
             var funTag = new Tag (25, "funDay");
             var outdoorFun = new Tag (578, "outdoor fun");
             var funTagDTO = new TagDTO (25, "funDay");
@@ -204,17 +210,18 @@ class TagServiceTest {
             tags.add(outdoorFun);
             tagsDTO.add(funTagDTO);
             tagsDTO.add(outdoorFunDTO);
+            Page<TagDTO> page = new Page<>(pageNumber, pageSize, tagsDTO.size(), tagsDTO);
             // WHEN
-            when(tagDAO.getTagsByParam(1,10,null, "fun")).thenReturn(tags);
+            when(tagDAO.getTagsByParam(pageNumber,pageSize,null, "fun")).thenReturn(tags);
             when(tagMapper.toDTO(funTag)).thenReturn(funTagDTO);
             when(tagMapper.toDTO(outdoorFun)).thenReturn(outdoorFunDTO);
             // THEN
-            assertEquals(tagsDTO, tagService.getTagsByParam(1,10,null, "fun"));
+            assertEquals(page, tagService.getTagsByParam(pageNumber,pageSize,null, "fun"));
         }
 
         @Test
         @DisplayName("invalid name")
-        void getByParamWithInvalidName() throws NotFoundException, InvalidInputException {
+        void getByParamWithInvalidName() {
             // GIVEN
 
             // WHEN
@@ -225,7 +232,7 @@ class TagServiceTest {
 
         @Test
         @DisplayName("invalid id")
-        void getByParamWithInvalidId() throws NotFoundException, InvalidInputException {
+        void getByParamWithInvalidId(){
             // GIVEN
 
             // WHEN
@@ -236,8 +243,10 @@ class TagServiceTest {
 
         @Test
         @DisplayName("no params return all tags")
-        void getByParamWithoutParamsShouldReturnAllTags() throws NotFoundException, InvalidInputException {
+        void getByParamWithoutParamsShouldReturnAllTags() throws InvalidInputException {
             // GIVEN
+            int pageSize = 10;
+            int pageNumber = 1;
             var funTag = new Tag (25, "funDay");
             var outdoorFun = new Tag (578, "outdoor");
             var funTagDTO = new TagDTO (25, "funDay");
@@ -248,16 +257,14 @@ class TagServiceTest {
             tags.add(outdoorFun);
             tagsDTO.add(funTagDTO);
             tagsDTO.add(outdoorFunDTO);
+            Page<TagDTO> page = new Page<>(pageNumber, pageSize, tagsDTO.size(), tagsDTO);
             // WHEN
-            when(tagDAO.getTagsByParam(1,10,null, null)).thenReturn(tags);
+            when(tagDAO.getTagsByParam(pageNumber,pageSize,null, null)).thenReturn(tags);
             when(tagMapper.toDTO(funTag)).thenReturn(funTagDTO);
             when(tagMapper.toDTO(outdoorFun)).thenReturn(outdoorFunDTO);
             // THEN
-            assertEquals(tagsDTO, tagService.getTagsByParam(1,10,null, null));
+            assertEquals(page, tagService.getTagsByParam(pageNumber,pageSize,null, null));
         }
-
-
-
     }
 
     @Nested
@@ -265,7 +272,7 @@ class TagServiceTest {
     class createTagTests {
         @Test
         @DisplayName("tag correctly inserted")
-        void createTagShouldInsertNewTagAndReturnInsertedTag() throws InvalidInputException, AlreadyExistException, NotFoundException {
+        void createTagShouldInsertNewTagAndReturnInsertedTag() throws InvalidInputException, AlreadyExistException {
             // GIVEN
             var tagToBeInserted = new Tag();
             tagToBeInserted.setName("cool");
@@ -284,7 +291,7 @@ class TagServiceTest {
 
         @Test
         @DisplayName("create tag with name which already exist in db")
-        void createTagWithNameThatAlreadyExistInDbShouldThrowException() throws NotFoundException {
+        void createTagWithNameThatAlreadyExistInDbShouldThrowException() {
             // GIVEN
             var tagToBeInserted = new Tag();
             tagToBeInserted.setName("cool");
@@ -302,8 +309,7 @@ class TagServiceTest {
         @DisplayName("create tag with invalid name")
         void createTagWithInvalidNameShouldThrowException() {
             // GIVEN
-            String name = null;
-            var invalidTag = new TagDTO(1, name);
+            var invalidTag = new TagDTO(1, null);
             // WHEN
 
             // THEN

@@ -1,7 +1,7 @@
 package com.epam.esm.exceptions;
 
 /**
- * Exception that should be thrown in case of duplicate item in database.
+ * Should be thrown in case of duplicated item in the database.
  */
 public class AlreadyExistException extends Exception {
 

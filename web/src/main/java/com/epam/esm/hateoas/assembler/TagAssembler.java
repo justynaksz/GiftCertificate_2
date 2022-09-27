@@ -1,7 +1,8 @@
-package com.epam.esm.assembler;
+package com.epam.esm.hateoas.assembler;
 
 import com.epam.esm.controllers.TagController;
 import com.epam.esm.dto.TagDTO;
+import com.epam.esm.model.Tag;
 import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +11,7 @@ import java.util.List;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 /**
- * Generates links to {@code tag}.
+ * Generates links to {@link Tag}.
  */
 @Component
 public class TagAssembler {
@@ -26,10 +27,10 @@ public class TagAssembler {
     }
 
     /**
-     * Adds links to every single {@code tag} in the given list.
+     * Adds links to every single {@link Tag} in the given list.
      *
      * @param tagDTOs to add links
-     * @return tagDTOs with links to every single {@code tag}
+     * @return tagDTOs with links to every single {@link Tag}
      */
     public List<TagDTO> addLinks(List<TagDTO> tagDTOs) {
         tagDTOs.forEach(this::addLink);
@@ -37,9 +38,9 @@ public class TagAssembler {
     }
 
     /**
-     * Gets link to all {@code tag} in database
+     * Gets link to all {@link Tag} in database
      *
-     * @return link to all {@code tag} in database
+     * @return link to all {@link Tag} in database
      */
     public Link getLinkToCollection() {
         return linkTo(TagController.class).withSelfRel();

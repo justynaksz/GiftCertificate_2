@@ -12,7 +12,7 @@ import java.util.List;
 
 
 /**
- * Implements CRUD operations for {@code GiftCertificate} entity.
+ * Implements CRUD operations for {@link GiftCertificate} entity.
  */
 @Repository
 public class GiftCertificateDAOImpl extends GenericDAOImpl<GiftCertificate, Integer> implements GiftCertificateDAO {
@@ -28,15 +28,12 @@ public class GiftCertificateDAOImpl extends GenericDAOImpl<GiftCertificate, Inte
      * {@inheritDoc}
      */
     @Override
-    public List<GiftCertificate> findByParam(int page, int size, GiftCertificateFilter filter) throws NotFoundException {
+    public List<GiftCertificate> findByParam(int page, int size, GiftCertificateFilter filter){
         var criteriaBuilder = getEntityManager().getCriteriaBuilder();
         List<GiftCertificate> giftCertificates = getEntityManager().createQuery(filter.buildCriteriaQuery(criteriaBuilder))
                 .setFirstResult((page - 1) * size)
                 .setMaxResults(size)
                 .getResultList();
-        if (giftCertificates.isEmpty()) {
-            throw new NotFoundException();
-        }
         logger.debug(giftCertificates.size() + " giftCertificates meet given criteria.");
        return giftCertificates;
     }
@@ -45,8 +42,18 @@ public class GiftCertificateDAOImpl extends GenericDAOImpl<GiftCertificate, Inte
      * {@inheritDoc}
      */
     @Override
-    public void updateGiftCertificate(GiftCertificate giftCertificate){
+    public int countCertificatesFoundByParam(GiftCertificateFilter filter) {
+        var criteriaBuilder = getEntityManager().getCriteriaBuilder();
+        return getEntityManager().createQuery(filter.buildCriteriaQuery(criteriaBuilder)).getResultList().size();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public GiftCertificate updateGiftCertificate(GiftCertificate giftCertificate) throws NotFoundException {
         getEntityManager().merge(giftCertificate);
         logger.debug("GiftCertificate successfully updated");
+        return findById(giftCertificate.getId());
     }
 }

@@ -8,8 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -43,7 +41,7 @@ public class PersistenceJPAConfig {
     }
 
     /**
-     * Defines data source on a production environment with properties specified in {@code application.properties} file.
+     * Defines data source on a production environment with properties specified in application file.
      *
      * @return dataSource    configured dataSource
      */
@@ -72,7 +70,7 @@ public class PersistenceJPAConfig {
     }
 
     /**
-     * Defines data source on a development environment with properties specified in {@code application.properties} file.
+     * Defines data source on a development environment with properties specified in application file.
      *
      * @return dataSource    configured dataSource
      */
@@ -102,7 +100,7 @@ public class PersistenceJPAConfig {
     }
 
     /**
-     * Configures {@code entityManagerFactory}.
+     * Configures {@link EntityManagerFactory}.
      *
      * @param dataSource depending on the profile
      * @param properties additional properties depending on the profile
@@ -121,7 +119,7 @@ public class PersistenceJPAConfig {
     }
 
     /**
-     * Configures {@code platformTransactionManager}.
+     * Configures {@link PlatformTransactionManager}.
      *
      * @param entityManagerFactory depending on profile
      * @return transactionManager
@@ -131,25 +129,5 @@ public class PersistenceJPAConfig {
         var transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactory);
         return transactionManager;
-    }
-
-    /**
-     * Generates {@code jdbcTemplate} with given data source.
-     *
-     * @return jdbcTemplate
-     */
-    @Bean
-    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
-        return new JdbcTemplate(dataSource);
-    }
-
-    /**
-     * Generates {@code namedParameterJdbcTemplate} with given data source.
-     *
-     * @return namedParameterJdbcTemplate
-     */
-    @Bean
-    public NamedParameterJdbcTemplate namedParameterJdbcTemplate(DataSource dataSource) {
-        return new NamedParameterJdbcTemplate(dataSource);
     }
 }

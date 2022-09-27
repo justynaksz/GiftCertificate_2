@@ -2,16 +2,15 @@ package com.epam.esm.dao;
 
 import com.epam.esm.exception.NotFoundException;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * CRD operations for entities.
  */
-public interface GenericDAO<T, I extends Serializable> {
+public interface GenericDAO<T, I> {
 
     /**
-     * Finds record of requested {@code id} from given table.
+     * Finds record of requested id from given table.
      *
      * @param id requested id
      * @return record   of requested id
@@ -25,17 +24,15 @@ public interface GenericDAO<T, I extends Serializable> {
      * @param page index of page
      * @param size max size of given page
      * @return list of all records in chosen table one single page
-     * @throws NotFoundException in case of no records in given table found in database
      */
-    List<T> findAll(int page, int size) throws NotFoundException;
+    List<T> findAll(int page, int size);
 
     /**
      * Finds all records from given table.
      *
      * @return list of all records in chosen table
-     * @throws NotFoundException in case of no records in given table found in database
      */
-    List<T> findAll() throws NotFoundException;
+    List<T> findAll();
 
     /**
      * Creates new record in given table.
@@ -46,9 +43,10 @@ public interface GenericDAO<T, I extends Serializable> {
     T create(T entity);
 
     /**
-     * Deletes record of requested {@code id} from given entity.
+     * Deletes record of requested id from given entity.
      *
      * @param id requested id
+     * @throws NotFoundException in case of no record of given id found in database
      */
     void delete(I id) throws NotFoundException;
 }

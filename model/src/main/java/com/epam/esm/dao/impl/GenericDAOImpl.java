@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -16,7 +15,7 @@ import java.util.List;
  */
 @Repository
 @Transactional
-public abstract class GenericDAOImpl <T, I extends Serializable> implements GenericDAO<T, I> {
+public abstract class GenericDAOImpl<T, I> implements GenericDAO<T, I> {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -44,7 +43,7 @@ public abstract class GenericDAOImpl <T, I extends Serializable> implements Gene
     public T findById(I id) throws NotFoundException {
         T entity = entityManager.find(entityClass, id);
         if (entity == null) {
-            throw new NotFoundException();
+            throw new NotFoundException(generateMessage(id));
         }
         logger.debug("Item of requested id = " + id + " has been found.");
         return entity;
@@ -54,14 +53,11 @@ public abstract class GenericDAOImpl <T, I extends Serializable> implements Gene
      * {@inheritDoc}
      */
     @Override
-    public List<T> findAll(int page, int size) throws NotFoundException {
-        List<T> entities = entityManager.createQuery("from " + getEntityClass().getName())
+    public List<T> findAll(int page, int size) {
+        List entities = entityManager.createQuery("from " + getEntityClass().getName())
                 .setFirstResult((page - 1) * size)
                 .setMaxResults(size)
                 .getResultList();
-        if (entities.isEmpty()) {
-            throw new NotFoundException();
-        }
         logger.debug(entities.size() + " items has been found.");
         return entities;
     }
@@ -70,11 +66,8 @@ public abstract class GenericDAOImpl <T, I extends Serializable> implements Gene
      * {@inheritDoc}
      */
     @Override
-    public List<T> findAll() throws NotFoundException {
-        List<T> entities = entityManager.createQuery("from " + getEntityClass().getName()).getResultList();
-        if (entities.isEmpty()) {
-            throw new NotFoundException();
-        }
+    public List<T> findAll() {
+        List entities = entityManager.createQuery("from " + getEntityClass().getName()).getResultList();
         logger.debug(entities.size() + " items has been found.");
         return entities;
     }
@@ -100,8 +93,12 @@ public abstract class GenericDAOImpl <T, I extends Serializable> implements Gene
         if (entity != null) {
             entityManager.remove(entity);
         } else {
-            throw new NotFoundException();
+            throw new NotFoundException(generateMessage(id));
         }
         logger.debug("Item of id = " + id + " has been deleted.");
+    }
+
+    private String generateMessage(I id) {
+        return "Item of id = " + id + " not found.";
     }
 }

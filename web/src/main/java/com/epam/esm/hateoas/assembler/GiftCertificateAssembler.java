@@ -1,21 +1,21 @@
-package com.epam.esm.assembler;
+package com.epam.esm.hateoas.assembler;
 
 import com.epam.esm.controllers.GiftCertificateController;
 import com.epam.esm.controllers.TagController;
 import com.epam.esm.dto.GiftCertificateDTO;
-import com.epam.esm.dto.TagDTO;
+import com.epam.esm.model.GiftCertificate;
+import com.epam.esm.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 /**
- * Generates links to {@code giftCertificate}.
+ * Generates links to {@link GiftCertificate}.
  */
 @Component
 public class GiftCertificateAssembler {
@@ -39,7 +39,7 @@ public class GiftCertificateAssembler {
     }
 
     /**
-     * Adds links to every single {@code giftCertificate} and its {@code tag} in the given list.
+     * Adds links to every single {@link GiftCertificate} and its {@link Tag} in the given list.
      *
      * @param giftCertificateDTOs to add links
      * @return giftCertificates with links
@@ -50,9 +50,9 @@ public class GiftCertificateAssembler {
     }
 
     /**
-     * Gets link to all {@code giftCertificate} in database
+     * Gets link to all {@link GiftCertificate} in database
      *
-     * @return link to all {@code giftCertificate} in database
+     * @return link to all {@link GiftCertificate} in database
      */
     public List<Link> getLinkToCollection() {
         List<Link> links = new ArrayList<>();
