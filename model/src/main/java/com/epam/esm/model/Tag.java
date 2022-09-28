@@ -1,16 +1,19 @@
 package com.epam.esm.model;
 
+import com.epam.esm.audit.AuditListener;
+
 import javax.persistence.*;
-import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
 
 /**
  * Tag entity.
  */
+@EntityListeners(AuditListener.class)
 @Entity
 @Table(name = "tag")
-public class Tag implements Serializable {
+public class Tag implements Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +22,9 @@ public class Tag implements Serializable {
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
+
+    @Column(name = "create_date", nullable = false)
+    private LocalDateTime createDate;
 
     @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
     private Set<GiftCertificate> giftCertificates;
@@ -45,6 +51,16 @@ public class Tag implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public void setCreateDate() {
+        this.createDate = LocalDateTime.now();
+    }
+
+    @Override
+    public void setLastUpdateDate() {
+        // Because there is no possibility to update tag but the method needs to be implemented - it stays empty.
     }
 
     @Override

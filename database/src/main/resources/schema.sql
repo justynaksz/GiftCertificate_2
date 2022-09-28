@@ -10,7 +10,9 @@ CREATE TABLE gift_certificate(
 
 CREATE TABLE tag(
     id SERIAL PRIMARY KEY,
-    name VARCHAR(40) NOT NULL UNIQUE
+    name VARCHAR(40) NOT NULL UNIQUE,
+    create_date TIMESTAMP(6) NOT NULL,
+    last_update_date TIMESTAMP(6)
 );
 
 

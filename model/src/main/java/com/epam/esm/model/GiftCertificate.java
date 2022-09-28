@@ -1,7 +1,8 @@
 package com.epam.esm.model;
 
+import com.epam.esm.audit.AuditListener;
+
 import javax.persistence.*;
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -10,9 +11,10 @@ import java.util.Set;
 /**
  * GiftCertificate entity.
  */
+@EntityListeners(AuditListener.class)
 @Entity
 @Table(name = "gift_certificate")
-public class GiftCertificate implements Serializable {
+public class GiftCertificate implements Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -103,16 +105,18 @@ public class GiftCertificate implements Serializable {
         return createDate;
     }
 
-    public void setCreateDate(LocalDateTime createDate) {
-        this.createDate = createDate;
+    @Override
+    public void setCreateDate() {
+        this.createDate = LocalDateTime.now();
     }
 
     public LocalDateTime getLastUpdateDate() {
         return lastUpdateDate;
     }
 
-    public void setLastUpdateDate(LocalDateTime lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
+    @Override
+    public void setLastUpdateDate() {
+        this.lastUpdateDate = LocalDateTime.now();
     }
 
     public Set<Tag> getTags() {

@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -101,7 +100,6 @@ public class GiftCertificateService {
     public GiftCertificateDTO addGiftCertificate(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException, NotFoundException {
         validateInputData(giftCertificateDTO);
         var giftCertificate = giftCertificateMapper.toModel(giftCertificateDTO);
-        giftCertificate.setCreateDate(LocalDateTime.now());
         Set<Tag> tags = giftCertificate.getTags();
         Set<Tag> tagsWithId = getTagsWithId(tags);
         giftCertificate.setTags(tagsWithId);
@@ -125,7 +123,6 @@ public class GiftCertificateService {
             throw new NotFoundException("Gift certificate of requested id = " + giftCertificateDTO.getId() + " not found.");
         }
         prepareGiftCertificateToUpdate(updatedGiftCertificate, giftCertificateDTO);
-        updatedGiftCertificate.setLastUpdateDate(LocalDateTime.now());
         return giftCertificateMapper.toDTO(giftCertificateDAO.updateGiftCertificate(updatedGiftCertificate));
     }
 
