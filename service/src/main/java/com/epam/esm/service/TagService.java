@@ -66,6 +66,7 @@ public class TagService {
      * @throws NotFoundException     in case of no result in database
      */
     public TagDTO getByName(String name) throws NotFoundException, InvalidInputException {
+        validateNullName(name);
         validateName(name);
         var tag = tagDAO.getByName(name);
         return tagMapper.toDTO(tag);
@@ -95,6 +96,7 @@ public class TagService {
      * @throws AlreadyExistException       in case tag of this name already exists in database
      */
     public TagDTO create(TagDTO tagDTO) throws InvalidInputException, AlreadyExistException{
+        validateNullName(tagDTO.getName());
         validateName(tagDTO.getName());
         var tag = tagMapper.toModel(tagDTO);
         for (Tag tagInDb : tagDAO.findAll()) {
@@ -130,6 +132,12 @@ public class TagService {
 
     private void validateName(String name) throws InvalidInputException {
         if (name != null && name.trim().isEmpty()) {
+            throw new InvalidInputException(INVALID_NAME);
+        }
+    }
+
+    private void validateNullName(String name) throws InvalidInputException {
+        if (name == null) {
             throw new InvalidInputException(INVALID_NAME);
         }
     }
