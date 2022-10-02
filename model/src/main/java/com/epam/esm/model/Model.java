@@ -1,7 +1,7 @@
 package com.epam.esm.model;
 
 /**
- * Contains common audit methods.
+ * Sets operation datetime.
  */
 public interface Model {
 

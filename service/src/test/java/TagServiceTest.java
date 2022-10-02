@@ -334,7 +334,7 @@ class TagServiceTest {
     class deleteTagTest {
         @Test
         @DisplayName("tag is correctly removed")
-        void deleteTagShouldRemoveTagOfGivenIdFromDatabase() throws NotFoundException {
+        void deleteTagShouldRemoveTagOfGivenIdFromDatabase() throws NotFoundException, InvalidInputException {
             // GIVEN
             var id = 1;
             // WHEN

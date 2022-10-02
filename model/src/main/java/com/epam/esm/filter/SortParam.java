@@ -12,16 +12,17 @@ public enum SortParam {
      * @return sortParamEnum
      */
     public static SortParam convertString(String sortParam) {
+        SortParam sort = null;
         if(sortParam != null) {
             var sortParamPrep = sortParam.trim().toUpperCase();
-            if (SortParam.valueOf(sortParamPrep).equals(NAME)) {
-                return NAME;
-            } else if (SortParam.valueOf(sortParamPrep).equals(DATE)) {
-                return DATE;
+            if (NAME.toString().equals(sortParamPrep)) {
+                sort = NAME;
             } else {
-                return null;
+                sort = DATE;
             }
+        } else {
+            sort = DATE;
         }
-        return null;
+        return sort;
     }
 }

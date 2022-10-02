@@ -42,9 +42,11 @@ public class GiftCertificateController {
      *
      * @param id requested id
      * @return GiftCertificateDTO   of given id
+     * @throws InvalidInputException in case of invalid id
+     * @throws NotFoundException in case of no tag of given id in database
      */
-    @GetMapping("id")
-    public GiftCertificateDTO getById(@RequestParam Integer id) throws InvalidInputException, NotFoundException {
+    @GetMapping("/{id}")
+    public GiftCertificateDTO getById(@PathVariable Integer id) throws InvalidInputException, NotFoundException {
         return assembler.addLink(giftCertificateService.getById(id));
     }
 
@@ -95,6 +97,7 @@ public class GiftCertificateController {
      * @param giftCertificateDTOToInsert giftCertificate to be inserted into database
      * @return giftCertificate                   that has been inserted into database
      * @throws InvalidInputException in case of negative id value
+     * @throws NotFoundException in case no tag of requested id is in database
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -112,7 +115,6 @@ public class GiftCertificateController {
      * @throws NotFoundException     in case of giftCertificate to be updated is not present in database
      */
     @PutMapping
-    @ResponseStatus(HttpStatus.ACCEPTED)
     public GiftCertificateDTO updateGiftCertificate(@RequestBody GiftCertificateDTO giftCertificateDTOUpdate) throws InvalidInputException, NotFoundException {
        return giftCertificateService.updateGiftCertificate(giftCertificateDTOUpdate);
     }
@@ -124,9 +126,9 @@ public class GiftCertificateController {
      * @param id int id of giftCertificate to delete from database
      * @throws NotFoundException in case of giftCertificate to be deleted is not present in database
      */
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteGiftCertificate(@RequestParam Integer id) throws NotFoundException {
+    public void deleteGiftCertificate(@PathVariable Integer id) throws NotFoundException {
         giftCertificateService.deleteGiftCertificate(id);
     }
 }

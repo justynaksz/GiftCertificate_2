@@ -132,7 +132,8 @@ public class GiftCertificate implements Model {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GiftCertificate that = (GiftCertificate) o;
-        return Objects.equals(id, that.id) && name.equals(that.name) && description.equals(that.description) && price.equals(that.price) && Objects.equals(duration, that.duration);
+        return Objects.equals(id, that.id) && name.equals(that.name) && description.equals(that.description)
+                && price.equals(that.price) && Objects.equals(duration, that.duration);
     }
 
     @Override

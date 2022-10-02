@@ -164,27 +164,22 @@ public class GiftCertificateService {
     }
 
     private void validateInputData(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException {
-        validateName(giftCertificateDTO);
-        validateDescription(giftCertificateDTO);
-        validatePriceAndDuration(giftCertificateDTO);
-    }
-
-    private void validateName(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException {
-        if (giftCertificateDTO.getName() == null || giftCertificateDTO.getName().trim().isEmpty()) {
+        if(validateName(giftCertificateDTO) || validateDescription(giftCertificateDTO)
+                || validatePriceAndDuration(giftCertificateDTO)) {
             throw new InvalidInputException(INVALID_INPUT_MESSAGE);
         }
     }
 
-    private void validateDescription(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException {
-        if (giftCertificateDTO.getDescription() == null || giftCertificateDTO.getDescription().trim().isEmpty()) {
-            throw new InvalidInputException(INVALID_INPUT_MESSAGE);
-        }
+    private boolean validateName(GiftCertificateDTO giftCertificateDTO) {
+        return giftCertificateDTO.getName() == null || giftCertificateDTO.getName().isBlank();
     }
 
-    private void validatePriceAndDuration(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException {
-        if (giftCertificateDTO.getPrice().intValue() <= 0 || giftCertificateDTO.getDuration() <= 0) {
-            throw new InvalidInputException(INVALID_INPUT_MESSAGE);
-        }
+    private boolean validateDescription(GiftCertificateDTO giftCertificateDTO) {
+        return giftCertificateDTO.getDescription() == null || giftCertificateDTO.getDescription().isBlank();
+    }
+
+    private boolean validatePriceAndDuration(GiftCertificateDTO giftCertificateDTO) {
+        return giftCertificateDTO.getPrice().intValue() <= 0 || giftCertificateDTO.getDuration() <= 0;
     }
 
     private void prepareGiftCertificateToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) throws InvalidInputException, NotFoundException {
@@ -196,13 +191,13 @@ public class GiftCertificateService {
     }
 
     private void prepareNameToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) {
-        if (giftCertificateDTO.getName() != null || !giftCertificateDTO.getName().trim().isEmpty()) {
+        if (giftCertificateDTO.getName() != null || !giftCertificateDTO.getName().isBlank()) {
             updatedGiftCertificate.setName(giftCertificateDTO.getName());
         }
     }
 
     private void prepareDescriptionToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) {
-        if (giftCertificateDTO.getDescription() != null || !giftCertificateDTO.getDescription().isEmpty()) {
+        if (!validateDescription(giftCertificateDTO)) {
             updatedGiftCertificate.setDescription(giftCertificateDTO.getDescription());
         }
     }

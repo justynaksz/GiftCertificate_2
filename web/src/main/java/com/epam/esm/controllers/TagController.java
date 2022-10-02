@@ -81,9 +81,11 @@ public class TagController {
      *
      * @param id required id value
      * @return tag
+     * @throws NotFoundException in case of no tag of requested id in database
+     * @throws InvalidInputException in case of invalid id
      */
-    @GetMapping("id")
-    public TagDTO getTagsById(@RequestParam Integer id) throws InvalidInputException, NotFoundException {
+    @GetMapping("/{id}")
+    public TagDTO getTagsById(@PathVariable Integer id) throws InvalidInputException, NotFoundException {
         return assembler.addLink(tagService.getById(id));
     }
 
@@ -93,6 +95,8 @@ public class TagController {
      *
      * @param tagDTOToInsert tag to be inserted into database
      * @return TagDTO        tag that has been inserted into database
+     * @throws InvalidInputException in case of invalid tag's name
+     * @throws AlreadyExistException in case of tag of given name already exits in database
      */
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
@@ -105,10 +109,12 @@ public class TagController {
      * Handles DELETE http-request.
      *
      * @param id requested id
+     * @throws NotFoundException in case of no tag of requested id in database
+     * @throws InvalidInputException in case of invalid id
      */
-    @DeleteMapping()
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTag(@RequestParam Integer id) throws NotFoundException {
+    public void deleteTag(@PathVariable Integer id) throws NotFoundException, InvalidInputException {
         tagService.delete(id);
     }
 }

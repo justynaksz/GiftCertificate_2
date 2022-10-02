@@ -8,20 +8,22 @@ public enum SortDirection {
 
     /**
      * Converts String into enum or null.
+     *
      * @param sortDirection given String to convert
      * @return sortDirectionEnum
      */
     public static SortDirection convertString(String sortDirection) {
+        SortDirection direction = null;
         if (sortDirection != null) {
             var sortDirectionPrep = sortDirection.trim().toUpperCase();
-            if (SortDirection.valueOf(sortDirectionPrep).equals(ASC)) {
-                return ASC;
-            } else if (SortDirection.valueOf(sortDirectionPrep).equals(DESC)) {
-                return DESC;
+            if (DESC.toString().equals(sortDirectionPrep)) {
+                direction = DESC;
             } else {
-                return null;
+                direction = ASC;
             }
+        } else {
+            direction = ASC;
         }
-        return null;
+        return direction;
     }
 }

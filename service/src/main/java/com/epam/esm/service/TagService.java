@@ -52,7 +52,9 @@ public class TagService {
      * @throws NotFoundException     in case of no result in database
      */
     public TagDTO getById(Integer id) throws InvalidInputException, NotFoundException {
-        validateId(id);
+        if (validateId(id)) {
+            throw new InvalidInputException(INVALID_ID);
+        }
         var tag = tagDAO.findById(id);
         return tagMapper.toDTO(tag);
     }
@@ -66,8 +68,9 @@ public class TagService {
      * @throws NotFoundException     in case of no result in database
      */
     public TagDTO getByName(String name) throws NotFoundException, InvalidInputException {
-        validateNullName(name);
-        validateName(name);
+        if (name == null || validateName(name)) {
+            throw new InvalidInputException(INVALID_NAME);
+        }
         var tag = tagDAO.getByName(name);
         return tagMapper.toDTO(tag);
     }
@@ -95,9 +98,10 @@ public class TagService {
      * @throws InvalidInputException       in case of null or empty tag name
      * @throws AlreadyExistException       in case tag of this name already exists in database
      */
-    public TagDTO create(TagDTO tagDTO) throws InvalidInputException, AlreadyExistException{
-        validateNullName(tagDTO.getName());
-        validateName(tagDTO.getName());
+    public TagDTO create(TagDTO tagDTO) throws InvalidInputException, AlreadyExistException {
+        if (tagDTO.getName() == null || validateName(tagDTO.getName())){
+            throw new InvalidInputException(INVALID_NAME);
+        }
         var tag = tagMapper.toModel(tagDTO);
         for (Tag tagInDb : tagDAO.findAll()) {
             if (tagInDb.getName().equals(tag.getName())) {
@@ -115,30 +119,26 @@ public class TagService {
      * @param id                        int value of tag instance to be removed
      * @throws NotFoundException        in case of tag to be deleted is not present in database
      */
-    public void delete(Integer id) throws NotFoundException {
+    public void delete(Integer id) throws NotFoundException, InvalidInputException {
+        if (validateId(id)) {
+            throw new InvalidInputException(INVALID_ID);
+        }
         tagDAO.delete(id);
     }
 
     private void validateInput(Integer id, String name) throws InvalidInputException {
-        validateId(id);
-        validateName(name);
-    }
-
-    private void validateId(Integer id) throws InvalidInputException {
-        if (id != null && id <= 0) {
+        if (validateId(id)) {
             throw new InvalidInputException(INVALID_ID);
+        } else if (validateName(name)) {
+            throw  new InvalidInputException(INVALID_NAME);
         }
     }
 
-    private void validateName(String name) throws InvalidInputException {
-        if (name != null && name.trim().isEmpty()) {
-            throw new InvalidInputException(INVALID_NAME);
-        }
+    private boolean validateId(Integer id) {
+        return id != null && id <= 0;
     }
 
-    private void validateNullName(String name) throws InvalidInputException {
-        if (name == null) {
-            throw new InvalidInputException(INVALID_NAME);
-        }
+    private boolean validateName(String name) {
+        return name != null && name.isBlank();
     }
 }

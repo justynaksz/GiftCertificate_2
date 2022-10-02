@@ -102,7 +102,7 @@ Using GiftCertificate requires:
   `mvn verify`
 
 ### 4.2. Run application
-+ from terminal in web directory:
++ from terminal in `web` directory:
   `mvn spring-boot:run`
 + from Intellij IDEA:
   `Shift + F10`
