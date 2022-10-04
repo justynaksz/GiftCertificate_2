@@ -109,14 +109,16 @@ public class GiftCertificateController {
      * Updates {@link GiftCertificate} in database.
      * Handles PUT http-request.
      *
+     * @param id int id of giftCertificate to update
      * @param giftCertificateDTOUpdate giftCertificate to update the one existing in database
      * @return updated giftCertificate
      * @throws InvalidInputException in case of negative price or duration input
      * @throws NotFoundException     in case of giftCertificate to be updated is not present in database
      */
-    @PutMapping
-    public GiftCertificateDTO updateGiftCertificate(@RequestBody GiftCertificateDTO giftCertificateDTOUpdate) throws InvalidInputException, NotFoundException {
-       return giftCertificateService.updateGiftCertificate(giftCertificateDTOUpdate);
+    @PutMapping("/{id}")
+    public GiftCertificateDTO updateGiftCertificate(@PathVariable Integer id,
+                                                    @RequestBody GiftCertificateDTO giftCertificateDTOUpdate) throws InvalidInputException, NotFoundException {
+       return giftCertificateService.updateGiftCertificate(id, giftCertificateDTOUpdate);
     }
 
     /**

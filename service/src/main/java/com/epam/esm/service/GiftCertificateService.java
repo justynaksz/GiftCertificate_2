@@ -111,14 +111,15 @@ public class GiftCertificateService {
     /**
      * Updates {@link GiftCertificate} contained in database.
      *
+     * @param id int id value of giftCertificate instance to update
      * @param giftCertificateDTO instance to be updated in database
      * @return updated giftCertificate
      * @throws InvalidInputException in case of negative price or duration input
      * @throws NotFoundException     in case of giftCertificate to be updated is not present in database
      */
     @Transactional
-    public GiftCertificateDTO updateGiftCertificate(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException, NotFoundException {
-        var updatedGiftCertificate = giftCertificateDAO.findById(giftCertificateDTO.getId());
+    public GiftCertificateDTO updateGiftCertificate(Integer id, GiftCertificateDTO giftCertificateDTO) throws InvalidInputException, NotFoundException {
+        var updatedGiftCertificate = giftCertificateDAO.findById(id);
         if (updatedGiftCertificate == null) {
             throw new NotFoundException("Gift certificate of requested id = " + giftCertificateDTO.getId() + " not found.");
         }
