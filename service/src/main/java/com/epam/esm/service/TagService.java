@@ -8,6 +8,7 @@ import com.epam.esm.exceptions.InvalidInputException;
 import com.epam.esm.mapper.TagMapper;
 import com.epam.esm.model.Tag;
 import com.epam.esm.pagination.Page;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,10 +21,13 @@ import java.util.List;
 @Service
 public class TagService {
 
+    private final Logger logger = Logger.getLogger(getClass().getName());
+
     private final TagDAO tagDAO;
     private final TagMapper tagMapper;
     private static final String INVALID_NAME = "Given tag's name is invalid.";
     private static final String INVALID_ID = "Given tag's id is invalid.";
+    private static final String INVALID_INPUT = "Given tag's id or name is invalid.";
 
     @Autowired
     public TagService(TagDAO tagDAO, TagMapper tagMapper) {
@@ -52,7 +56,7 @@ public class TagService {
      * @throws NotFoundException     in case of no result in database
      */
     public TagDTO getById(Integer id) throws InvalidInputException, NotFoundException {
-        if (validateId(id)) {
+        if (isInvalidId(id)) {
             throw new InvalidInputException(INVALID_ID);
         }
         var tag = tagDAO.findById(id);
@@ -68,7 +72,7 @@ public class TagService {
      * @throws NotFoundException     in case of no result in database
      */
     public TagDTO getByName(String name) throws NotFoundException, InvalidInputException {
-        if (name == null || validateName(name)) {
+        if (name == null || isInvalidName(name)) {
             throw new InvalidInputException(INVALID_NAME);
         }
         var tag = tagDAO.getByName(name);
@@ -83,7 +87,11 @@ public class TagService {
      * @return tags         list of all tags that fits requested criteria
      */
     public Page<TagDTO> getTagsByParam(int page, int size, Integer id, String name) throws InvalidInputException {
-        validateInput(id, name);
+        if(isInvalidInput(id, name)) {
+            throw new InvalidInputException(INVALID_INPUT);
+        } else {
+           logger.debug("Given input is valid.");
+        }
         List<Tag> tags = tagDAO.getTagsByParam(page, size, id, name);
         List<TagDTO> tagDTOs = new ArrayList<>();
         tags.forEach(tag -> tagDTOs.add(tagMapper.toDTO(tag)));
@@ -99,7 +107,7 @@ public class TagService {
      * @throws AlreadyExistException       in case tag of this name already exists in database
      */
     public TagDTO create(TagDTO tagDTO) throws InvalidInputException, AlreadyExistException {
-        if (tagDTO.getName() == null || validateName(tagDTO.getName())){
+        if (tagDTO.getName() == null || isInvalidName(tagDTO.getName())){
             throw new InvalidInputException(INVALID_NAME);
         }
         var tag = tagMapper.toModel(tagDTO);
@@ -120,25 +128,21 @@ public class TagService {
      * @throws NotFoundException        in case of tag to be deleted is not present in database
      */
     public void delete(Integer id) throws NotFoundException, InvalidInputException {
-        if (validateId(id)) {
+        if (isInvalidId(id)) {
             throw new InvalidInputException(INVALID_ID);
         }
         tagDAO.delete(id);
     }
 
-    private void validateInput(Integer id, String name) throws InvalidInputException {
-        if (validateId(id)) {
-            throw new InvalidInputException(INVALID_ID);
-        } else if (validateName(name)) {
-            throw  new InvalidInputException(INVALID_NAME);
-        }
+    private boolean isInvalidInput(Integer id, String name) {
+        return isInvalidId(id) || isInvalidName(name);
     }
 
-    private boolean validateId(Integer id) {
+    private boolean isInvalidId(Integer id) {
         return id != null && id <= 0;
     }
 
-    private boolean validateName(String name) {
+    private boolean isInvalidName(String name) {
         return name != null && name.isBlank();
     }
 }

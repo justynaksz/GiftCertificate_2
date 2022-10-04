@@ -13,6 +13,7 @@ import com.epam.esm.mapper.GiftCertificateMapper;
 import com.epam.esm.model.GiftCertificate;
 import com.epam.esm.model.Tag;
 import com.epam.esm.pagination.Page;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,8 @@ import java.util.Set;
  */
 @Service
 public class GiftCertificateService {
+
+    private final Logger logger = Logger.getLogger(getClass().getName());
 
     private final GiftCertificateDAO giftCertificateDAO;
     private final GiftCertificateMapper giftCertificateMapper;
@@ -98,7 +101,11 @@ public class GiftCertificateService {
      */
     @Transactional
     public GiftCertificateDTO addGiftCertificate(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException, NotFoundException {
-        validateInputData(giftCertificateDTO);
+        if (isInvalidInputData(giftCertificateDTO)) {
+            throw new InvalidInputException(INVALID_INPUT_MESSAGE);
+        } else {
+            logger.debug("Given giftCertificate is valid.");
+        }
         var giftCertificate = giftCertificateMapper.toModel(giftCertificateDTO);
         Set<Tag> tags = giftCertificate.getTags();
         Set<Tag> tagsWithId = getTagsWithId(tags);
@@ -164,22 +171,20 @@ public class GiftCertificateService {
         return isTagInDatabase;
     }
 
-    private void validateInputData(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException {
-        if(validateName(giftCertificateDTO) || validateDescription(giftCertificateDTO)
-                || validatePriceAndDuration(giftCertificateDTO)) {
-            throw new InvalidInputException(INVALID_INPUT_MESSAGE);
-        }
+    private boolean isInvalidInputData(GiftCertificateDTO giftCertificateDTO) {
+        return isInvalidName(giftCertificateDTO) || isInvalidDescription(giftCertificateDTO)
+                || isInvalidPriceAndDuration(giftCertificateDTO);
     }
 
-    private boolean validateName(GiftCertificateDTO giftCertificateDTO) {
+    private boolean isInvalidName(GiftCertificateDTO giftCertificateDTO) {
         return giftCertificateDTO.getName() == null || giftCertificateDTO.getName().isBlank();
     }
 
-    private boolean validateDescription(GiftCertificateDTO giftCertificateDTO) {
+    private boolean isInvalidDescription(GiftCertificateDTO giftCertificateDTO) {
         return giftCertificateDTO.getDescription() == null || giftCertificateDTO.getDescription().isBlank();
     }
 
-    private boolean validatePriceAndDuration(GiftCertificateDTO giftCertificateDTO) {
+    private boolean isInvalidPriceAndDuration(GiftCertificateDTO giftCertificateDTO) {
         return giftCertificateDTO.getPrice().intValue() <= 0 || giftCertificateDTO.getDuration() <= 0;
     }
 
@@ -198,7 +203,7 @@ public class GiftCertificateService {
     }
 
     private void prepareDescriptionToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) {
-        if (!validateDescription(giftCertificateDTO)) {
+        if (!isInvalidDescription(giftCertificateDTO)) {
             updatedGiftCertificate.setDescription(giftCertificateDTO.getDescription());
         }
     }
