@@ -1,81 +1,120 @@
 package com.epam.esm.controllers;
 
 import com.epam.esm.dto.TagDTO;
+import com.epam.esm.exception.NotFoundException;
+import com.epam.esm.exceptions.AlreadyExistException;
+import com.epam.esm.exceptions.InvalidInputException;
+import com.epam.esm.hateoas.assembler.TagAssembler;
+import com.epam.esm.hateoas.pagelinker.TagPageLinker;
+import com.epam.esm.model.Tag;
+import com.epam.esm.pagination.Page;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Spring REST controllers for processing requests {@code tag} resource.
+ * Spring REST controllers for processing requests {@link Tag} resource.
  */
 @RestController
 @RequestMapping("/tags")
 public class TagController {
 
     private final TagService tagService;
+    private final TagAssembler assembler;
+    private final TagPageLinker pageLinker;
 
     @Autowired
-    public TagController(TagService tagService) {
+    public TagController(TagService tagService, TagAssembler assembler, TagPageLinker pageLinker) {
         this.tagService = tagService;
+        this.assembler = assembler;
+        this.pageLinker = pageLinker;
     }
 
     /**
-     * Finds {@code tag}  with requested id.
-     * Handles GET http-request.
-     *
-     * @param id requested id
-     * @return TagDTO   of given id
-     */
-    @GetMapping("/{id}")
-    public TagDTO getById(@PathVariable int id) {
-        return tagService.getById(id);
-    }
-
-    /**
-     * Gets all {@code tag}.
+     * Gets all {@link Tag}.
      * Handles GET http-request.
      *
      * @return tags   list of all tags in database
      */
-    @GetMapping
-    public List<TagDTO> getAll() {
-        return tagService.getAll();
+    @GetMapping()
+    public CollectionModel<TagDTO> getAllTags(@RequestParam(defaultValue = "1") int page,
+                                              @RequestParam(defaultValue = "5") int size) {
+        Page<TagDTO> pageOfResults = tagService.getAll(page, size);
+        List<TagDTO> tags = assembler.addLinks(pageOfResults.getContent());
+        List<Link> links = new ArrayList<>();
+        links.add(assembler.getLinkToCollection());
+        pageLinker.addPagesLinksInGetAllMethod(pageOfResults, links);
+        return CollectionModel.of(tags, links);
     }
 
     /**
-     * Finds {@code tag}  with requested name.
+     * Gets {@link Tag} that fits requested id or/and name.
      * Handles GET http-request.
      *
-     * @param name requested id
-     * @return TagDTO    of given name
+     * @param id   not required id value
+     * @param name not required name value
+     * @return tags   list of tags that fits requested criteria
      */
-    @GetMapping("name/{name}")
-    public TagDTO getByName(@PathVariable String name) {
-        return tagService.getByName(name);
+    @GetMapping("param")
+    public CollectionModel<TagDTO> getTagsByParam(@RequestParam(defaultValue = "1") int page,
+                                                  @RequestParam(defaultValue = "5") int size,
+                                                  @RequestParam(required = false) Integer id,
+                                                  @RequestParam(required = false) String name)
+            throws InvalidInputException {
+        Page<TagDTO> pageOfResults = tagService.getTagsByParam(page, size, id, name);
+        List<TagDTO> tags = assembler.addLinks(pageOfResults.getContent());
+        List<Link> links = new ArrayList<>();
+        links.add(assembler.getLinkToCollection());
+        pageLinker.addPagesLinksInGetByParamMethod(pageOfResults, links, id, name);
+        return CollectionModel.of(tags, links);
     }
 
     /**
-     * Creates new {@code tag}.
+     * Gets {@link Tag} with requested id.
+     * Handles GET http-request.
+     *
+     * @param id required id value
+     * @return tag
+     * @throws NotFoundException in case of no tag of requested id in database
+     * @throws InvalidInputException in case of invalid id
+     */
+    @GetMapping("/{id}")
+    public TagDTO getTagsById(@PathVariable Integer id) throws InvalidInputException, NotFoundException {
+        return assembler.addLink(tagService.getById(id));
+    }
+
+    /**
+     * Creates new {@link Tag}.
      * Handles POST http-request.
      *
      * @param tagDTOToInsert tag to be inserted into database
      * @return TagDTO        tag that has been inserted into database
+     * @throws InvalidInputException in case of invalid tag's name
+     * @throws AlreadyExistException in case of tag of given name already exits in database
      */
     @PostMapping()
-    public TagDTO createTag(@RequestBody TagDTO tagDTOToInsert) {
-        return tagService.addTag(tagDTOToInsert);
+    @ResponseStatus(HttpStatus.CREATED)
+    public TagDTO createTag(@RequestBody TagDTO tagDTOToInsert) throws InvalidInputException, AlreadyExistException {
+        return assembler.addLink(tagService.create(tagDTOToInsert));
     }
 
     /**
-     * Deletes {@code tag} with requested id.
+     * Deletes {@link Tag} with requested id.
      * Handles DELETE http-request.
      *
      * @param id requested id
+     * @throws NotFoundException in case of no tag of requested id in database
+     * @throws InvalidInputException in case of invalid id
      */
     @DeleteMapping("/{id}")
-    public void deleteTag(@PathVariable int id) {
-        tagService.deleteTag(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTag(@PathVariable Integer id) throws NotFoundException, InvalidInputException {
+        tagService.delete(id);
     }
 }

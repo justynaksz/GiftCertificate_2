@@ -1,5 +1,6 @@
 package com.epam.esm.exceptionhandler;
 
+import com.epam.esm.exception.NotFoundException;
 import com.epam.esm.exceptions.AlreadyExistException;
 import com.epam.esm.exceptions.InvalidInputException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -70,6 +71,22 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         body.put(TIME_AND_DATE, getNowAdjusted());
         body.put(ERROR_MESSAGE, exception.getMessage());
         body.put(ERROR_CODE, 40401);
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Handles NotFoundException.
+     * @param exception         thrown NotFoundException
+     * @param webRequest        actual webRequest
+     * @return responseEntity   with specified body (time and date, error message and code)
+     *                          and http status
+     */
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Object> handleNotFound(NotFoundException exception, WebRequest webRequest) {
+        Map<String, Object> body = new HashMap<>();
+        body.put(TIME_AND_DATE, getNowAdjusted());
+        body.put(ERROR_MESSAGE, exception.getMessage());
+        body.put(ERROR_CODE, 40402);
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 

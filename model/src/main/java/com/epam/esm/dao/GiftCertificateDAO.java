@@ -1,86 +1,41 @@
 package com.epam.esm.dao;
 
+import com.epam.esm.exception.NotFoundException;
+import com.epam.esm.filter.GiftCertificateFilter;
 import com.epam.esm.model.GiftCertificate;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
+import com.epam.esm.model.Tag;
 
 import java.util.List;
 
 /**
- * CRUD operations for {@code GiftCertificate} entity.
+ * CRUD operations for {@link GiftCertificate} entity.
  */
-public interface GiftCertificateDAO {
+public interface GiftCertificateDAO extends GenericDAO<GiftCertificate, Integer> {
 
     /**
-     * Finds {@code giftCertificate} of given id value.
-     * @param id                                int id value
-     * @return giftCertificate                  giftCertificate of given id value
-     * @throws EmptyResultDataAccessException   in case of gift certificate not found
+     * Finds {@link GiftCertificate} with requested list of {@link Tag} and requested param optionally sorted by name or date.
+     *
+     * @param page index of page
+     * @param size max size of given page
+     * @param filter instance with searching and sorting params
+     * @return giftCertificates lists        giftCertificates that fits criteria
      */
-    GiftCertificate findById(int id) throws EmptyResultDataAccessException;
+    List<GiftCertificate> findByParam(int page, int size, GiftCertificateFilter filter);
 
     /**
-     * Finds {@code giftCertificate} assigned to given tagName value.
-     * @param tagName                        String value of tag's name
-     * @return giftCertificates lists        giftCertificates assigned to given tag's name
+     * Returns total count of {@link GiftCertificate} found with specified filter.
+     *
+     * @param filter instance with searching and sorting params
+     * @return count of found {@link GiftCertificate}
      */
-    List<GiftCertificate> findByTag(String tagName);
+    int countCertificatesFoundByParam(GiftCertificateFilter filter);
 
     /**
-     * Finds {@code giftCertificate} by part of name or description.
-     * @param key                           String value of requested name/description word
-     * @return giftCertificates lists       giftCertificates containing key word in their name or description
+     * Updates {@link GiftCertificate} contained in database.
+     *
+     * @param giftCertificate GiftCertificate instance to be updated in database
+     * @return updated giftCertificate
+     * @throws NotFoundException in case of gift certificate of given id has not been found
      */
-    List<GiftCertificate> findByNameOrDescription(String key);
-
-    /**
-     * Finds all {@code giftCertificate}.
-     * @return giftCertificates lists    all giftCertificates
-     */
-    List<GiftCertificate> findAll();
-
-    /**
-     * Sorts all {@code giftCertificate} by ascending order.
-     * @return giftCertificates lists in ascending order
-     */
-    List<GiftCertificate> sortAscending();
-
-    /**
-     * Sorts all {@code giftCertificate} by descending order.
-     * @return giftCertificates lists in descending order
-     */
-    List<GiftCertificate> sortDescending();
-
-    /**
-     * Sorts all {@code giftCertificate} by ascending order by date.
-     * @return giftCertificates lists in ascending order by date
-     */
-    List<GiftCertificate> sortAscendingByDate() throws DataAccessException;
-
-    /**
-     * Sorts all {@code giftCertificate} by descending order by date.
-     * @return giftCertificates lists in descending order by date
-     */
-    List<GiftCertificate> sortDescendingByDate();
-
-    /**
-     * Creates new {@code giftCertificate} entity.
-     * @param giftCertificate     GiftCertificate instance to be inserted into database
-     * @return giftCertificate    GiftCertificate instance with specified id value that has been inserted into database
-     */
-    GiftCertificate createGiftCertificate(GiftCertificate giftCertificate);
-
-    /**
-     * Updates {@code giftCertificate} contained in database.
-     * @param giftCertificate                       GiftCertificate instance to be updated in database
-     * @throws EmptyResultDataAccessException       in case of gift certificate not found
-     */
-    void updateGiftCertificate(GiftCertificate giftCertificate) throws EmptyResultDataAccessException;
-
-    /**
-     * Deletes {@code giftCertificate} of given id value.
-     * @param  id                                   int id value of giftCertificate instance to be removed
-     * @throws EmptyResultDataAccessException       in case of gift certificate not found
-     */
-    void deleteGiftCertificate(int id) throws EmptyResultDataAccessException;
+    GiftCertificate updateGiftCertificate(GiftCertificate giftCertificate) throws NotFoundException;
 }

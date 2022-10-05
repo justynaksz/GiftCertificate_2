@@ -13,9 +13,8 @@
     <artifactId>service</artifactId>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <mockito.version>4.7.0</mockito.version>
+        <maven.compiler.release>11</maven.compiler.release>
+        <mockito.version>4.8.0</mockito.version>
         <assesrtj.version>3.23.1</assesrtj.version>
     </properties>
 
