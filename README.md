@@ -110,12 +110,12 @@ Using GiftCertificate requires:
     - [X] search by part of name/description (can be implemented, using DB function call)
     - [X] sort by date or by name ASC/DESC (extra task: implement ability to apply both sort type at the same time).
   - [X] Change single field of gift certificate (e.g. implement the possibility to change only duration of a certificate or only price).
-  - [ ] Add new entity User and implement only get operations for user entity.
-  - [ ] Make an order on gift certificate for a user (user should have an ability to buy a certificate).
-  - [ ] Get information about user’s order: cost and timestamp of a purchase.
-    - [ ] The order cost should not be changed if the price of the gift certificate is changed.
-  - [ ] Get the most widely used tag of a user with the highest cost of all orders.
-    - [ ] Create separate endpoint for this query.
+  - [X] Add new entity User and implement only get operations for user entity.
+  - [X] Make an order on gift certificate for a user (user should have an ability to buy a certificate).
+  - [X] Get information about user’s order: cost and timestamp of a purchase.
+    - [X] The order cost should not be changed if the price of the gift certificate is changed.
+  - [X] Get the most widely used tag of a user with the highest cost of all orders.
+    - [X] Create separate endpoint for this query.
   - [X] Search for gift certificates by several tags (“and” condition).
   - [X] Pagination should be implemented for all GET endpoints. Create a flexible and non-erroneous solution. Handle all exceptional cases.
   - [X] Support HATEOAS on REST endpoints.
@@ -131,7 +131,7 @@ Using GiftCertificate requires:
 - [X] Application container: Spring IoC. Spring Framework, the latest version.
 - [X] Database: PostgreSQL/MySQL, latest version.
 - [X] Testing: JUnit 5.+, Mockito.
-- [ ] Service layer should be covered with unit tests not less than 80%.
+- [X] Service layer should be covered with unit tests not less than 80%.
 - [X] Hibernate should be used as a JPA implementation for data access.
 - [X] Audit data should be populated using JPA features.
 
