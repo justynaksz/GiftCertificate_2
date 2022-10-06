@@ -90,12 +90,22 @@ public class TagService {
         if(isInvalidInput(id, name)) {
             throw new InvalidInputException(INVALID_INPUT);
         } else {
-           logger.debug("Given input is valid.");
+            logger.debug("Given input is valid.");
         }
         List<Tag> tags = tagDAO.getTagsByParam(page, size, id, name);
         List<TagDTO> tagDTOs = new ArrayList<>();
         tags.forEach(tag -> tagDTOs.add(tagMapper.toDTO(tag)));
         return new Page<>(page, size, tagDAO.countTagsFoundByParam(id, name), tagDTOs);
+    }
+
+    /**
+     * Finds the most popular {@link Tag} for user with the highest cost of all orders.
+     *
+     * @return the most popular tag
+     */
+    public TagDTO getTheMostPopularTag() {
+        var tag = tagDAO.getTheMostPopularTag();
+        return tagMapper.toDTO(tag);
     }
 
     /**

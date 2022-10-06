@@ -6,6 +6,7 @@ import com.epam.esm.model.Tag;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -73,8 +74,33 @@ public class TagDAOImpl extends GenericDAOImpl<Tag, Integer> implements TagDAO {
         if (tag == null) {
             throw new NotFoundException("Tag of requested name - " + name + " - not found.");
         }
-        logger.debug("Tag of name - " + name + " - has been found");
+        logger.debug("Tag of name - " + name + " - has been found.");
         return tag;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Tag getTheMostPopularTag() {
+        String popularQuery = "SELECT t.id, t.name, t.create_date FROM tag AS t\n" +
+                "JOIN gift_certificate_tag AS gt \n" +
+                "ON gt.tag_id = t.id\n" +
+                "AND gt.gift_certificate_id IN (\n" +
+                "\tSELECT g.id FROM gift_certificate AS g\n" +
+                "\tJOIN shop_order AS o\n" +
+                "\tON o.gift_certificate = g.id\n" +
+                "\tAND o.shop_user = (\n" +
+                "\tSELECT u.id FROM shop_user AS u\n" +
+                "\tJOIN shop_order AS o\n" +
+                "\tON u.id = o.shop_user\n" +
+                "\tGROUP BY u.id\n" +
+                "\tORDER BY SUM(o.cost) DESC\n" +
+                "\tLIMIT 1)\n" +
+                ")\n" +
+                "LIMIT 1;";
+        Query query = getEntityManager().createNativeQuery(popularQuery, Tag.class);
+        return (Tag) query.getSingleResult();
     }
 
     private String buildKeyName(String key) {

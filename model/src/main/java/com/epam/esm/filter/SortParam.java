@@ -12,7 +12,7 @@ public enum SortParam {
      * @return sortParamEnum
      */
     public static SortParam convertString(String sortParam) {
-        SortParam sort = null;
+        SortParam sort;
         if(sortParam != null) {
             var sortParamPrep = sortParam.trim().toUpperCase();
             if (NAME.toString().equals(sortParamPrep)) {

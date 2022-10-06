@@ -149,9 +149,9 @@ class GiftCertificateServiceTest {
             Set<Tag> tags = setUpTags(Arrays.asList("cinema", "date", "movie"), false);
             Set<TagDTO> tagsDTO = setUpTagsDTO(Arrays.asList("cinema", "date", "movie"), false);
             List<Tag> tagsInDb = new ArrayList<>();
-            tagsInDb.add(new Tag(1, "cinema"));
-            tagsInDb.add(new Tag(2, "date"));
-            tagsInDb.add(new Tag(3, "movie"));
+            tagsInDb.add(new Tag(1, "cinema", LocalDateTime.parse("2022-03-18T12:24:47.241")));
+            tagsInDb.add(new Tag(2, "date", LocalDateTime.parse("2022-03-18T12:24:47.241")));
+            tagsInDb.add(new Tag(3, "movie", LocalDateTime.parse("2022-03-18T12:24:47.241")));
             var giftToBeInserted = new GiftCertificate(0, "Movie night",
                     "Movie session in Cinema City", BigDecimal.valueOf(15.00), 200,
                     LocalDateTime.parse("2022-03-18T12:24:47.241"),
@@ -170,9 +170,9 @@ class GiftCertificateServiceTest {
             // WHEN
             when(giftCertificateMapper.toModel(giftToBeInsertedDTO)).thenReturn(giftToBeInserted);
             when(tagDAO.findAll()).thenReturn(tagsInDb);
-            when(tagDAO.getByName("cinema")).thenReturn(new Tag(1, "cinema"));
-            when(tagDAO.getByName("date")).thenReturn(new Tag(2, "date"));
-            when(tagDAO.getByName("movie")).thenReturn(new Tag(3, "movie"));
+            when(tagDAO.getByName("cinema")).thenReturn(new Tag(1, "cinema", LocalDateTime.parse("2022-03-18T12:24:47.241") ));
+            when(tagDAO.getByName("date")).thenReturn(new Tag(2, "date", LocalDateTime.parse("2022-03-18T12:24:47.241")));
+            when(tagDAO.getByName("movie")).thenReturn(new Tag(3, "movie", LocalDateTime.parse("2022-03-18T12:24:47.241")));
             when(giftCertificateDAO.create(giftToBeInserted)).thenReturn(giftInserted);
             when(giftCertificateMapper.toDTO(giftInserted)).thenReturn(giftInsertedDTO);
             // THEN
@@ -192,16 +192,16 @@ class GiftCertificateServiceTest {
             var giftToBeInsertedDTO = new GiftCertificateDTO(0, "Movie night",
                     "Movie session in Cinema City", BigDecimal.valueOf(15.00), 200,
                     "2022-03-18T12:24:47.241", "2022-06-18T12:24:47.241", tagsDTO);
-            var existingInDbMovie = new Tag(29, "movie");
-            var existingInDbDate = new Tag(7, "date");
+            var existingInDbMovie = new Tag(29, "movie", LocalDateTime.parse("2022-03-18T12:24:47.241"));
+            var existingInDbDate = new Tag(7, "date", LocalDateTime.parse("2022-03-18T12:24:47.241"));
             Set<Tag> tagsInserted = new HashSet<>();
-            tagsInserted.add(new Tag(45, "cinema"));
-            tagsInserted.add(new Tag(29, "movie"));
-            tagsInserted.add(new Tag(7, "date"));
+            tagsInserted.add(new Tag(45, "cinema", LocalDateTime.parse("2022-03-18T12:24:47.241")));
+            tagsInserted.add(new Tag(29, "movie", LocalDateTime.parse("2022-03-18T12:24:47.241")));
+            tagsInserted.add(new Tag(7, "date", LocalDateTime.parse("2022-03-18T12:24:47.241")));
             Set<TagDTO> tagsInsertedDTO = new HashSet<>();
-            tagsInsertedDTO.add(new TagDTO(45, "cinema"));
-            tagsInsertedDTO.add(new TagDTO(29, "movie"));
-            tagsInsertedDTO.add(new TagDTO(7, "date"));
+            tagsInsertedDTO.add(new TagDTO(45, "cinema", "2022-03-18T12:24:47.241"));
+            tagsInsertedDTO.add(new TagDTO(29, "movie", "2022-03-18T12:24:47.241"));
+            tagsInsertedDTO.add(new TagDTO(7, "date","2022-03-18T12:24:47.241"));
             var giftInserted = new GiftCertificate(3, "Movie night",
                     "Movie session in Cinema City", BigDecimal.valueOf(15.00), 200,
                     LocalDateTime.parse("2022-03-18T12:24:47.241"), LocalDateTime.parse("2022-06-18T12:24:47.241"), tagsInserted);
@@ -212,7 +212,7 @@ class GiftCertificateServiceTest {
             when(giftCertificateMapper.toModel(giftToBeInsertedDTO)).thenReturn(giftToBeInserted);
             when(tagDAO.findAll()).thenReturn(Arrays.asList(existingInDbMovie, existingInDbDate));
             when(giftCertificateDAO.create(giftToBeInserted)).thenReturn(giftInserted);
-            when(tagDAO.create(new Tag(null, "cinema"))).thenReturn(new Tag(45, "cinema"));
+            when(tagDAO.create(new Tag(null, "cinema", LocalDateTime.parse("2022-03-18T12:24:47.241")))).thenReturn(new Tag(45, "cinema", LocalDateTime.parse("2022-03-18T12:24:47.241")));
             when(tagDAO.getByName("date")).thenReturn(existingInDbDate);
             when(tagDAO.getByName("movie")).thenReturn(existingInDbMovie);
             when(giftCertificateMapper.toDTO(giftInserted)).thenReturn(giftInsertedDTO);
@@ -232,6 +232,16 @@ class GiftCertificateServiceTest {
             assertThrows(InvalidInputException.class, () -> giftCertificateService.addGiftCertificate(giftToBeInsertedDTO));
         }
 
+        @Test
+        @DisplayName("create gift certificate with null input")
+        void createGiftCertificateWithNullInputShouldThrowException() {
+            // GIVEN
+
+            // WHEN
+
+            // THEN
+            assertThrows(InvalidInputException.class, () -> giftCertificateService.addGiftCertificate(null));
+        }
 
         @Test
         @DisplayName("create gift certificate with empty input")
@@ -271,7 +281,7 @@ class GiftCertificateServiceTest {
             when(giftCertificateDAO.updateGiftCertificate(giftCertificateUpdated)).thenReturn(giftCertificateUpdated);
             when(giftCertificateMapper.toDTO(giftCertificateUpdated)).thenReturn(giftCertificateUpdatedDTO);
             // THEN
-            assertEquals(giftCertificateUpdatedDTO, giftCertificateService.updateGiftCertificate(giftCertificateDTOInput));
+            assertEquals(giftCertificateUpdatedDTO, giftCertificateService.updateGiftCertificate(giftCertificate.getId(), giftCertificateDTOInput));
         }
 
         @Test
@@ -281,35 +291,25 @@ class GiftCertificateServiceTest {
                     "Movie session in Cinema City", BigDecimal.valueOf(15.00), 200,
                     "2022-03-18T12:24:47.241", "2022-06-18T12:24:47.241", new HashSet<>());
             // WHEN
-            when(giftCertificateDAO.findById(giftCertificateDTO.getId())).thenReturn(null);
+            when(giftCertificateDAO.findById(giftCertificateDTO.getId())).thenThrow(NotFoundException.class);
             // THEN
-            assertThrows(NotFoundException.class, () -> giftCertificateService.updateGiftCertificate(giftCertificateDTO));
-        }
-
-        @Test
-        @DisplayName("update gift certificate with invalid input")
-        void updateGiftCertificateWithInvalidInputShouldTrowException() {
-            // GIVEN
-            var giftToBeUpdatedDTO = new GiftCertificateDTO(0, null, "Movie session in Cinema City",
-                    BigDecimal.valueOf(15.00), 200, "2022-03-18T12:24:47.241",
-                    "2022-06-18T12:24:47.241", new HashSet<>());
-            // WHEN
-
-            // THEN
-            assertThrows(InvalidInputException.class, () -> giftCertificateService.addGiftCertificate(giftToBeUpdatedDTO));
+            assertThrows(NotFoundException.class, () -> giftCertificateService.updateGiftCertificate(3, giftCertificateDTO));
         }
 
         @Test
         @DisplayName("update gift certificate with empty input")
-        void updateGiftCertificateWithEmptyInputShouldTrowException() {
+        void updateGiftCertificateWithEmptyInputShouldTrowException() throws NotFoundException {
             // GIVEN
-            var giftToBeUpdatedDTO = new GiftCertificateDTO(0, "Movie night", "     ",
+            var giftToBeUpdatedDTO = new GiftCertificateDTO(1, "Movie night", "     ",
                     BigDecimal.valueOf(15.00), 200, "2022-03-18T12:24:47.241",
                     "2022-06-18T12:24:47.241", new HashSet<>());
+            var giftInDatabase = new GiftCertificate(1, "Movie night", "Movie night description",
+                    BigDecimal.valueOf(20.00), 200, LocalDateTime.parse("2022-03-18T12:24:47.241"),
+                    LocalDateTime.parse("2022-06-18T12:24:47.241"), new HashSet<>());
             // WHEN
-
+            when(giftCertificateDAO.findById(giftToBeUpdatedDTO.getId())).thenReturn(giftInDatabase);
             // THEN
-            assertThrows(InvalidInputException.class, () -> giftCertificateService.addGiftCertificate(giftToBeUpdatedDTO));
+            assertThrows(InvalidInputException.class, () -> giftCertificateService.updateGiftCertificate(giftInDatabase.getId(), giftToBeUpdatedDTO));
         }
     }
 
@@ -346,10 +346,10 @@ class GiftCertificateServiceTest {
         Tag tag;
         for (String name : tagsNames) {
             if (isInserted) {
-                tag = new Tag(id, name);
+                tag = new Tag(id, name, LocalDateTime.parse("2022-03-18T12:24:47.241"));
                 id++;
             } else {
-                tag = new Tag(null, name);
+                tag = new Tag(null, name, LocalDateTime.parse("2022-03-18T12:24:47.241"));
             }
             tags.add(tag);
         }
@@ -362,10 +362,10 @@ class GiftCertificateServiceTest {
         TagDTO tag;
         for (String name : tagsNames) {
             if (isInserted) {
-                tag = new TagDTO(id, name);
+                tag = new TagDTO(id, name, "2022-03-18T12:24:47.241");
                 id++;
             } else {
-                tag = new TagDTO(null, name);
+                tag = new TagDTO(null, name, "2022-03-18T12:24:47.241");
             }
             tags.add(tag);
         }

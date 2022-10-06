@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +46,8 @@ class TagServiceTest {
             // GIVEN
             var id = 2;
             var name = "fun";
-            var funTag = new Tag (id, name);
-            var funDTO = new TagDTO (id, name);
+            var funTag = new Tag (id, name, LocalDateTime.parse("2022-03-18T12:24:47.241"));
+            var funDTO = new TagDTO (id, name, "2022-03-18T12:24:47.241");
             // WHEN
             when(tagDAO.findById(id)).thenReturn(funTag);
             when(tagMapper.toDTO(funTag)).thenReturn(funDTO);
@@ -95,18 +96,18 @@ class TagServiceTest {
             var photo = "photo";
             var kids = "kids";
 
-            var funTag = new Tag (funId, fun);
-            var photoTag = new Tag (photoId, photo);
-            var kidsTag = new Tag (kidsId, kids);
+            var funTag = new Tag (funId, fun, LocalDateTime.parse("2022-03-18T12:24:47.241"));
+            var photoTag = new Tag (photoId, photo, LocalDateTime.parse("2022-03-18T12:24:47.241"));
+            var kidsTag = new Tag (kidsId, kids, LocalDateTime.parse("2022-03-18T12:24:47.241"));
 
             List<Tag> tags = new ArrayList<>();
             tags.add(funTag);
             tags.add(photoTag);
             tags.add(kidsTag);
 
-            var funDTO = new TagDTO (funId, fun);
-            var photoDTO = new TagDTO (photoId, photo);
-            var kidsDTO = new TagDTO (kidsId, kids);
+            var funDTO = new TagDTO (funId, fun, "2022-03-18T12:24:47.241");
+            var photoDTO = new TagDTO (photoId, photo, "2022-03-18T12:24:47.241");
+            var kidsDTO = new TagDTO (kidsId, kids, "2022-03-18T12:24:47.241");
 
             List<TagDTO> tagsDTO = new ArrayList<>();
             tagsDTO.add(funDTO);
@@ -148,8 +149,8 @@ class TagServiceTest {
             // GIVEN
             var fun = "fun";
             var id = 1;
-            var funTag = new Tag(id, fun);
-            var funDTO = new TagDTO(id, fun);
+            var funTag = new Tag(id, fun, LocalDateTime.parse("2022-03-18T12:24:47.241"));
+            var funDTO = new TagDTO(id, fun, "2022-03-18T12:24:47.241");
             // WHEN
             when(tagDAO.getByName(fun)).thenReturn(funTag);
             when(tagMapper.toDTO(funTag)).thenReturn(funDTO);
@@ -200,10 +201,10 @@ class TagServiceTest {
             // GIVEN
             int pageSize = 10;
             int pageNumber = 1;
-            var funTag = new Tag (25, "funDay");
-            var outdoorFun = new Tag (578, "outdoor fun");
-            var funTagDTO = new TagDTO (25, "funDay");
-            var outdoorFunDTO = new TagDTO (578, "outdoor fun");
+            var funTag = new Tag (25, "funDay", LocalDateTime.parse("2022-03-18T12:24:47.241"));
+            var outdoorFun = new Tag (578, "outdoor fun", LocalDateTime.parse("2022-03-18T12:24:47.241"));
+            var funTagDTO = new TagDTO (25, "funDay", "2022-03-18T12:24:47.241");
+            var outdoorFunDTO = new TagDTO (578, "outdoor fun", "2022-03-18T12:24:47.241");
             List<Tag> tags = new ArrayList<>();
             List<TagDTO> tagsDTO = new ArrayList<>();
             tags.add(funTag);
@@ -247,10 +248,10 @@ class TagServiceTest {
             // GIVEN
             int pageSize = 10;
             int pageNumber = 1;
-            var funTag = new Tag (25, "funDay");
-            var outdoorFun = new Tag (578, "outdoor");
-            var funTagDTO = new TagDTO (25, "funDay");
-            var outdoorFunDTO = new TagDTO (578, "outdoor");
+            var funTag = new Tag (25, "funDay", LocalDateTime.parse("2022-03-18T12:24:47.241"));
+            var outdoorFun = new Tag (578, "outdoor", LocalDateTime.parse("2022-03-18T12:24:47.241"));
+            var funTagDTO = new TagDTO (25, "funDay", "2022-03-18T12:24:47.241");
+            var outdoorFunDTO = new TagDTO (578, "outdoor", "2022-03-18T12:24:47.241");
             List<Tag> tags = new ArrayList<>();
             List<TagDTO> tagsDTO = new ArrayList<>();
             tags.add(funTag);
@@ -276,11 +277,11 @@ class TagServiceTest {
             // GIVEN
             var tagToBeInserted = new Tag();
             tagToBeInserted.setName("cool");
-            var tagDTOToBeInserted = new TagDTO(null, "cool");
+            var tagDTOToBeInserted = new TagDTO(null, "cool", "2022-03-18T12:24:47.241");
             var insertedTag = new Tag();
             insertedTag.setName("cool");
             insertedTag.setId(1);
-            var insertedTagDTO = new TagDTO(1, "cool");
+            var insertedTagDTO = new TagDTO(1, "cool", "2022-03-18T12:24:47.241");
             // WHEN
             when(tagMapper.toModel(tagDTOToBeInserted)).thenReturn(tagToBeInserted);
             when(tagDAO.create(tagToBeInserted)).thenReturn(insertedTag);
@@ -295,7 +296,7 @@ class TagServiceTest {
             // GIVEN
             var tagToBeInserted = new Tag();
             tagToBeInserted.setName("cool");
-            var tagDTOToBeInserted = new TagDTO(null, "cool");
+            var tagDTOToBeInserted = new TagDTO(null, "cool", "2022-03-18T12:24:47.241");
             List<Tag> tagsInDb = new ArrayList<>();
             tagsInDb.add(tagToBeInserted);
             // WHEN
@@ -309,7 +310,7 @@ class TagServiceTest {
         @DisplayName("create tag with invalid name")
         void createTagWithInvalidNameShouldThrowException() {
             // GIVEN
-            var invalidTag = new TagDTO(1, null);
+            var invalidTag = new TagDTO(1, null, "2022-03-18T12:24:47.241");
             // WHEN
 
             // THEN
@@ -321,7 +322,7 @@ class TagServiceTest {
         void createTagWithEmptyNameShouldThrowException() {
             // GIVEN
             var name = "  ";
-            var invalidTag = new TagDTO(1, name);
+            var invalidTag = new TagDTO(1, name, "2022-03-18T12:24:47.241");
             // WHEN
 
             // THEN

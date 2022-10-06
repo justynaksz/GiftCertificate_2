@@ -90,6 +90,18 @@ public class TagController {
     }
 
     /**
+     * Gets the most popular {@link Tag} for user with the highest cost of all orders.
+     * Handles GET http-request.
+     *
+     * @return the most popular tag
+     */
+    @GetMapping("popular")
+    public TagDTO getMostPopularTag() {
+        return assembler.addLink(tagService.getTheMostPopularTag());
+    }
+
+
+    /**
      * Creates new {@link Tag}.
      * Handles POST http-request.
      *

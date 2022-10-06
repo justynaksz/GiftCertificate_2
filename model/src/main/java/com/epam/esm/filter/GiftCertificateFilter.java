@@ -59,14 +59,14 @@ public class GiftCertificateFilter {
     private Order buildSortOrder(CriteriaBuilder criteriaBuilder, Root<GiftCertificate> root) {
         if (sortParameter.equals(SortParam.NAME)) {
             var name = "name";
-            if (sortDirection.equals(SortDirection.DESC)) {
-                 return criteriaBuilder.desc(root.get(name));
+            if (hasSortDirection() && sortDirection.equals(SortDirection.DESC)) {
+                return criteriaBuilder.desc(root.get(name));
             } else {
                 return criteriaBuilder.asc(root.get(name));
             }
         } else {
             var date = "createDate";
-            if (sortDirection.equals(SortDirection.DESC)) {
+            if (hasSortDirection() && sortDirection.equals(SortDirection.DESC)) {
                 return criteriaBuilder.desc(root.get(date));
             } else {
                 return criteriaBuilder.asc(root.get(date));
@@ -93,6 +93,10 @@ public class GiftCertificateFilter {
 
     private boolean hasSortParameter() {
         return sortParameter != null;
+    }
+
+    private boolean hasSortDirection() {
+        return sortDirection != null;
     }
 
     private boolean hasTags() {
