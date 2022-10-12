@@ -101,7 +101,7 @@ public class GiftCertificateService {
      */
     @Transactional
     public GiftCertificateDTO addGiftCertificate(GiftCertificateDTO giftCertificateDTO) throws InvalidInputException, NotFoundException {
-        if (isInvalidInputData(giftCertificateDTO)) {
+        if (giftCertificateDTO == null || isInputNull(giftCertificateDTO) || isInvalidInputData(giftCertificateDTO)) {
             throw new InvalidInputException(INVALID_INPUT_MESSAGE);
         } else {
             logger.debug("Given giftCertificate is valid.");
@@ -127,9 +127,6 @@ public class GiftCertificateService {
     @Transactional
     public GiftCertificateDTO updateGiftCertificate(Integer id, GiftCertificateDTO giftCertificateDTO) throws InvalidInputException, NotFoundException {
         var updatedGiftCertificate = giftCertificateDAO.findById(id);
-        if (updatedGiftCertificate == null) {
-            throw new NotFoundException("Gift certificate of requested id = " + giftCertificateDTO.getId() + " not found.");
-        }
         prepareGiftCertificateToUpdate(updatedGiftCertificate, giftCertificateDTO);
         return giftCertificateMapper.toDTO(giftCertificateDAO.updateGiftCertificate(updatedGiftCertificate));
     }
@@ -177,15 +174,20 @@ public class GiftCertificateService {
     }
 
     private boolean isInvalidName(GiftCertificateDTO giftCertificateDTO) {
-        return giftCertificateDTO.getName() == null || giftCertificateDTO.getName().isBlank();
+        return giftCertificateDTO.getName().isBlank();
     }
 
     private boolean isInvalidDescription(GiftCertificateDTO giftCertificateDTO) {
-        return giftCertificateDTO.getDescription() == null || giftCertificateDTO.getDescription().isBlank();
+        return giftCertificateDTO.getDescription().isBlank();
     }
 
     private boolean isInvalidPriceAndDuration(GiftCertificateDTO giftCertificateDTO) {
         return giftCertificateDTO.getPrice().intValue() <= 0 || giftCertificateDTO.getDuration() <= 0;
+    }
+
+    private boolean isInputNull(GiftCertificateDTO giftCertificateDTO) {
+        return giftCertificateDTO.getName() == null || giftCertificateDTO.getDescription() == null ||
+                giftCertificateDTO.getPrice() == null || giftCertificateDTO.getDuration() == null;
     }
 
     private void prepareGiftCertificateToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) throws InvalidInputException, NotFoundException {
@@ -196,15 +198,19 @@ public class GiftCertificateService {
         prepareTagsToUpdate(updatedGiftCertificate, giftCertificateDTO);
     }
 
-    private void prepareNameToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) {
+    private void prepareNameToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) throws InvalidInputException {
         if (giftCertificateDTO.getName() != null || !giftCertificateDTO.getName().isBlank()) {
             updatedGiftCertificate.setName(giftCertificateDTO.getName());
+        } else {
+            throw new InvalidInputException(INVALID_INPUT_MESSAGE);
         }
     }
 
-    private void prepareDescriptionToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) {
+    private void prepareDescriptionToUpdate(GiftCertificate updatedGiftCertificate, GiftCertificateDTO giftCertificateDTO) throws InvalidInputException {
         if (!isInvalidDescription(giftCertificateDTO)) {
             updatedGiftCertificate.setDescription(giftCertificateDTO.getDescription());
+        } else {
+            throw new InvalidInputException(INVALID_INPUT_MESSAGE);
         }
     }
 

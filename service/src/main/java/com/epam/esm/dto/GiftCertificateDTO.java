@@ -1,14 +1,16 @@
 package com.epam.esm.dto;
 
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Set;
 
 /**
- * DTO class fo GiftCertificate.
+ * DTO class for GiftCertificate.
  */
+@Relation(itemRelation = "gift certificate", collectionRelation = "gift certificates")
 public class GiftCertificateDTO extends RepresentationModel<GiftCertificateDTO> implements DTO {
 
     private final Integer id;

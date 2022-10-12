@@ -1,41 +1,38 @@
 package com.epam.esm.model;
 
-import com.epam.esm.audit.AuditListener;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
 
 /**
- * Tag entity.
+ * User entity.
  */
-@EntityListeners(AuditListener.class)
 @Entity
-@Table(name = "tag")
-public class Tag implements Model {
+@Table(name = "shop_user")
+public class User implements Model{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "name", nullable = false, unique = true)
-    private String name;
+    @Column(name = "nickname", nullable = false, unique = true)
+    private String nickname;
 
     @Column(name = "create_date", nullable = false)
     private LocalDateTime createDate;
 
-    @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
-    private Set<GiftCertificate> giftCertificates;
+    @OneToMany(mappedBy = "shopUser", fetch = FetchType.LAZY)
+    private Set<Order> orders;
 
-    public Tag(Integer id, String name, LocalDateTime createDate) {
-        this.id = id;
-        this.name = name;
-        this.createDate = createDate;
+    public User() {
     }
 
-    public Tag() {
+    public User(Integer id, String nickname, LocalDateTime createDate) {
+        this.id = id;
+        this.nickname = nickname;
+        this.createDate = createDate;
     }
 
     public Integer getId() {
@@ -46,12 +43,12 @@ public class Tag implements Model {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public LocalDateTime getCreateDate() {
@@ -74,24 +71,34 @@ public class Tag implements Model {
         // Because there is no possibility to update tag but the method needs to be implemented - it stays empty.
     }
 
+    public Set<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(Set<Order> orders) {
+        this.orders = orders;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Tag tag = (Tag) o;
-        return Objects.equals(id, tag.id) && name.equals(tag.name);
+        User user = (User) o;
+        return Objects.equals(id, user.id) && Objects.equals(nickname, user.nickname);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id, nickname);
     }
 
     @Override
     public String toString() {
-        return "Tag[" +
-                "id=" + getId() +
-                ", name='" + getName() + '\'' +
-                ']';
+        return "User{" +
+                "id=" + id +
+                ", name='" + nickname + '\'' +
+                ", createDate=" + createDate +
+                ", orders=" + orders +
+                '}';
     }
 }

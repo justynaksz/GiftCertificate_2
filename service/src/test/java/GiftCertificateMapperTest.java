@@ -50,10 +50,10 @@ class GiftCertificateMapperTest {
     @DisplayName("to DTO test")
     void toDTOShouldReturnCorrectlyMigratedGiftCertificateDTO() {
         // GIVEN
-        shopping = new Tag(1, "shopping");
-        food = new Tag(2, "food");
-        shoppingDTO = new TagDTO(1, "shopping");
-        foodDTO = new TagDTO(2, "food");
+        shopping = new Tag(1, "shopping", LocalDateTime.parse("2022-03-18T12:24:47.241"));
+        food = new Tag(2, "food", LocalDateTime.parse("2022-03-18T12:24:47.241"));
+        shoppingDTO = new TagDTO(1, "shopping", "2022-03-18T12:24:47.241");
+        foodDTO = new TagDTO(2, "food", "2022-03-18T12:24:47.241");
         tags.add(shopping);
         tags.add(food);
         tagsDTO.add(shoppingDTO);
@@ -79,10 +79,10 @@ class GiftCertificateMapperTest {
     @DisplayName("to model test")
     void toModelShouldReturnCorrectlyMigratedGiftCertificate() {
         // GIVEN
-        shopping = new Tag(1, "shopping");
-        food = new Tag(2, "food");
-        shoppingDTO = new TagDTO(1, "shopping");
-        foodDTO = new TagDTO(2, "food");
+        shopping = new Tag(1, "shopping", LocalDateTime.parse("2022-03-18T12:24:47.241"));
+        food = new Tag(2, "food", LocalDateTime.parse("2022-03-18T12:24:47.241"));
+        shoppingDTO = new TagDTO(1, "shopping", "2022-03-18T12:24:47.241");
+        foodDTO = new TagDTO(2, "food", "2022-03-18T12:24:47.241");
         tags.add(shopping);
         tags.add(food);
         tagsDTO.add(shoppingDTO);

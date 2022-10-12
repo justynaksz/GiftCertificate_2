@@ -6,18 +6,18 @@ import org.springframework.hateoas.server.core.Relation;
 import java.util.Objects;
 
 /**
- * DTO class fo Tag.
+ * DTO class for User.
  */
-@Relation(itemRelation = "tag", collectionRelation = "tags")
-public class TagDTO extends RepresentationModel<TagDTO> implements DTO {
+@Relation(itemRelation = "user", collectionRelation = "users")
+public class UserDTO extends RepresentationModel<UserDTO> implements DTO {
 
     private final Integer id;
-    private final String name;
+    private final String nickname;
     private final String createDate;
 
-    public TagDTO(Integer id, String name, String createDate) {
+    public UserDTO(Integer id, String name, String createDate) {
         this.id = id;
-        this.name = name;
+        this.nickname = name;
         this.createDate = createDate;
     }
 
@@ -26,7 +26,7 @@ public class TagDTO extends RepresentationModel<TagDTO> implements DTO {
     }
 
     public String getName() {
-        return name;
+        return nickname;
     }
 
     public String getCreateDate() {
@@ -37,12 +37,13 @@ public class TagDTO extends RepresentationModel<TagDTO> implements DTO {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        var tagDTO = (TagDTO) o;
-        return Objects.equals(id, tagDTO.id) && Objects.equals(name, tagDTO.name);
+        if (!super.equals(o)) return false;
+        UserDTO userDTO = (UserDTO) o;
+        return Objects.equals(id, userDTO.id) && Objects.equals(nickname, userDTO.nickname);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(super.hashCode(), id, nickname);
     }
 }

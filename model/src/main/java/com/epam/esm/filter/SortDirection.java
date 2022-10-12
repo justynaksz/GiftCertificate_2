@@ -13,7 +13,7 @@ public enum SortDirection {
      * @return sortDirectionEnum
      */
     public static SortDirection convertString(String sortDirection) {
-        SortDirection direction = null;
+        SortDirection direction;
         if (sortDirection != null) {
             var sortDirectionPrep = sortDirection.trim().toUpperCase();
             if (DESC.toString().equals(sortDirectionPrep)) {

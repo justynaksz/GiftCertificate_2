@@ -17,8 +17,8 @@ class PageTest {
 
     @BeforeEach
     void initEach() {
-        food = new TagDTO(5, "food");
-        fun = new TagDTO(4, "fun");
+        food = new TagDTO(5, "food", "2022-03-18T12:24:47.241");
+        fun = new TagDTO(4, "fun", "2022-05-18T12:24:47.241");
     }
 
     @Nested

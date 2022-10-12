@@ -38,4 +38,12 @@ public interface TagDAO extends GenericDAO<Tag, Integer> {
      * @throws NotFoundException in case there's no tag of given name in database
      */
     Tag getByName(String name) throws NotFoundException;
+
+
+    /**
+     * Finds the most popular {@link Tag} for user with the highest cost of all orders.
+     *
+     * @return the most popular tag
+     */
+    Tag getTheMostPopularTag();
 }

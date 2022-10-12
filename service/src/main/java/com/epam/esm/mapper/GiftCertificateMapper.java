@@ -9,15 +9,14 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Mapper class to transform {@link GiftCertificate} and {@link GiftCertificateDTO} types.
+ * Mapper to transform {@link GiftCertificate} and {@link GiftCertificateDTO} types.
  */
 @Component
-public class GiftCertificateMapper {
+public class GiftCertificateMapper extends Mapper<GiftCertificate, GiftCertificateDTO>{
 
     private final TagMapper tagMapper;
 
@@ -27,11 +26,9 @@ public class GiftCertificateMapper {
     }
 
     /**
-     * Transform {@link GiftCertificateDTO} object to {@link GiftCertificate} type.
-     *
-     * @param giftCertificateDTO object to transform into {@link GiftCertificate}
-     * @return giftCertificate          transformed {@link GiftCertificate}
+     * {@inheritDoc}
      */
+    @Override
     public GiftCertificate toModel(GiftCertificateDTO giftCertificateDTO) {
         var id = 0;
         if (giftCertificateDTO.getId() != null) {
@@ -55,11 +52,9 @@ public class GiftCertificateMapper {
     }
 
     /**
-     * Transform {@link GiftCertificate} object to {@link GiftCertificateDTO} type.
-     *
-     * @param giftCertificate object to transform into {@link GiftCertificateDTO}
-     * @return giftCertificateDTO   transformed {@link GiftCertificateDTO}
+     * {@inheritDoc}
      */
+    @Override
     public GiftCertificateDTO toDTO(GiftCertificate giftCertificate) {
         var id = giftCertificate.getId();
         var name = giftCertificate.getName();
@@ -77,11 +72,6 @@ public class GiftCertificateMapper {
         var tags = giftCertificate.getTags();
         var tagsDTO = tagsToDTO(tags);
         return new GiftCertificateDTO(id, name, description, price, duration, createDate, lastUpdateDate, tagsDTO);
-    }
-
-    private String constructISOFormatDate(LocalDateTime dateTime) {
-        var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        return dateTime.format(formatter);
     }
 
     /**
